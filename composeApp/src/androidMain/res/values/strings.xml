@@ -1,3 +1,6 @@
 <resources>
     <string name="app_name">todolist</string>
+    <string name="user_registered">El usuario ya está registrado.</string>
+    <string name="user_not_registered">El usuario no está registrado.</string>
+    <string name="unexpected_error">Ocurrió un error inesperado.</string>
 </resources>

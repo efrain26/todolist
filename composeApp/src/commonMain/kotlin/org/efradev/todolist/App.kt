@@ -1,22 +1,25 @@
 package org.efradev.todolist
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.safeContentPadding
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import org.efradev.todolist.data.UserCheckResult
 import org.efradev.todolist.view.EmailForm
 import org.efradev.todolist.view.LoginForm
 import org.efradev.todolist.view.RegisterForm
 import org.jetbrains.compose.ui.tooling.preview.Preview
-
-fun isEmailRegistered(email: String): Boolean {
-    // Lógica dummy: si el email contiene "test" está registrado
-    return email.contains("test")
-}
+import org.efradev.todolist.viewmodel.EmailCheckViewModel
+import org.efradev.todolist.viewmodel.EmailCheckState
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 @Preview
@@ -24,6 +27,8 @@ fun App() {
     MaterialTheme {
         var screen by remember { mutableStateOf("email") }
         var email by remember { mutableStateOf("") }
+        val viewModel: EmailCheckViewModel = koinViewModel<EmailCheckViewModel>()
+        val state = viewModel.state
         Column(
             modifier = Modifier
                 .safeContentPadding()
@@ -31,12 +36,30 @@ fun App() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when (screen) {
-                "email" -> EmailForm { enteredEmail ->
-                    email = enteredEmail
-                    screen = if (isEmailRegistered(email)) "login" else "register"
-                }
+                "email" -> EmailForm(
+                    onSubmit = { enteredEmail ->
+                        email = enteredEmail
+                        viewModel.checkEmail(email)
+                    },
+                    isLoading = state is EmailCheckState.Loading,
+                    errorMessage = (state as? EmailCheckState.Result)?.message
+                        ?: (state as? EmailCheckState.Error)?.message
+                )
                 "register" -> RegisterForm(email) { screen = "email" }
                 "login" -> LoginForm(email) { screen = "email" }
+            }
+            // Navegación automática según el estado
+            LaunchedEffect(state) {
+                when (state) {
+                    is EmailCheckState.Result -> {
+                        when (state.result) {
+                            is UserCheckResult.Registered -> screen = "login"
+                            is UserCheckResult.NotRegistered -> screen = "register"
+                            else -> {}
+                        }
+                    }
+                    else -> {}
+                }
             }
         }
     }

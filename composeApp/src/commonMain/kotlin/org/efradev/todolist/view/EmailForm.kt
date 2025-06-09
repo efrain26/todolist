@@ -12,13 +12,22 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 
 @Composable
-fun EmailForm(onSubmit: (String) -> Unit) {
+fun EmailForm(
+    onSubmit: (String) -> Unit,
+    isLoading: Boolean = false,
+    errorMessage: String? = null
+) {
     var email by remember { mutableStateOf("") }
     Box(modifier = Modifier.fillMaxSize()) {
         Column(
             modifier = Modifier.align(Alignment.Center),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Text(
+                text = "Mis Listas App",
+                modifier = Modifier.padding(bottom = 32.dp),
+                style = androidx.compose.material3.MaterialTheme.typography.headlineMedium
+            )
             OutlinedTextField(
                 value = email,
                 onValueChange = { email = it },
@@ -26,8 +35,15 @@ fun EmailForm(onSubmit: (String) -> Unit) {
                 singleLine = true
             )
             Spacer(Modifier.height(16.dp))
-            Button(onClick = { if (email.isNotBlank()) onSubmit(email) }) {
-                Text("Continuar")
+            Button(
+                onClick = { if (email.isNotBlank()) onSubmit(email) },
+                enabled = !isLoading
+            ) {
+                Text(if (isLoading) "Cargando..." else "Continuar")
+            }
+            if (errorMessage != null) {
+                Spacer(Modifier.height(8.dp))
+                Text(errorMessage, color = androidx.compose.ui.graphics.Color.Red)
             }
         }
     }
@@ -36,5 +52,5 @@ fun EmailForm(onSubmit: (String) -> Unit) {
 @Preview
 @Composable
 fun EmailFormPreview() {
-    EmailForm(onSubmit = {})
+    EmailForm(onSubmit = {  })
 }
