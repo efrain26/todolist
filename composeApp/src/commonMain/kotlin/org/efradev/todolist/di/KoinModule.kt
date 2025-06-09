@@ -15,6 +15,10 @@ import org.efradev.todolist.domain.StringResProvider
 import org.koin.core.context.startKoin
 import org.efradev.todolist.domain.provideStringResProvider
 import org.koin.core.module.Module
+import org.efradev.todolist.data.UserRegisterRepository
+import org.efradev.todolist.data.UserRegisterRepositoryImpl
+import org.efradev.todolist.domain.RegisterUserUseCase
+import org.efradev.todolist.viewmodel.RegisterViewModel
 
 val appModule = module {
     single {
@@ -24,20 +28,18 @@ val appModule = module {
                 // TODO Fix API so it serves application/json
                 json(json, contentType = ContentType.Any)
             }
-
-//            install(logging) {
-//                logger = Logger.DEFAULT
-//                level = LogLevel.ALL
-//            }
         }
     }
     single<StringResProvider> { provideStringResProvider() }
     single<UserRepository> { UserRepositoryImpl(get()) }
     single { CheckUserExistsUseCase(get(), get()) }
+    single<UserRegisterRepository> { UserRegisterRepositoryImpl(get()) }
+    single { RegisterUserUseCase(get(), get()) }
 }
 
 val viewModelModule = module {
     factoryOf(::EmailCheckViewModel)
+    factoryOf(::RegisterViewModel)
 }
 
 fun initKoin() {

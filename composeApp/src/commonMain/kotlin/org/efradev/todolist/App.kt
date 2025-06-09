@@ -45,7 +45,11 @@ fun App() {
                     errorMessage = (state as? EmailCheckState.Result)?.message
                         ?: (state as? EmailCheckState.Error)?.message
                 )
-                "register" -> RegisterForm(email) { screen = "email" }
+                "register" -> RegisterForm(
+                    email = email,
+                    onBack = { screen = "email" },
+                    onRegisterSuccess = { screen = "login" }
+                )
                 "login" -> LoginForm(email) { screen = "email" }
             }
             // Navegación automática según el estado
