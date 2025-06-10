@@ -7,12 +7,12 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.efradev.todolist.domain.CheckUserExistsUseCase
-import org.efradev.todolist.data.UserCheckResult
+import org.efradev.todolist.domain.UserCheckResultWithMessage
 
 sealed class EmailCheckState {
     object Idle : EmailCheckState()
     object Loading : EmailCheckState()
-    data class Result(val result: UserCheckResult, val message: String) : EmailCheckState()
+    data class Success(val message: String, val isRegistered: Boolean) : EmailCheckState()
     data class Error(val message: String) : EmailCheckState()
 }
 
@@ -25,13 +25,21 @@ class EmailCheckViewModel(
     fun checkEmail(email: String) {
         state = EmailCheckState.Loading
         viewModelScope.launch {
-            try {
-                val resultWithMsg = checkUserExistsUseCase(email)
-                state = EmailCheckState.Result(resultWithMsg.result, resultWithMsg.message)
-            } catch (e: Exception) {
-                e.printStackTrace()
-                state = EmailCheckState.Error(e.message ?: "Unknown error")
-            }
+            checkUserExistsUseCase(email).fold(
+                onSuccess = { result ->
+                    when (result) {
+                        is UserCheckResultWithMessage.Registered ->
+                            state = EmailCheckState.Success(result.message, isRegistered = true)
+                        is UserCheckResultWithMessage.NotRegistered ->
+                            state = EmailCheckState.Success(result.message, isRegistered = false)
+                        is UserCheckResultWithMessage.Error ->
+                            state = EmailCheckState.Error(result.message)
+                    }
+                },
+                onFailure = { error ->
+                    state = EmailCheckState.Error(error.message ?: "Error desconocido")
+                }
+            )
         }
     }
 }

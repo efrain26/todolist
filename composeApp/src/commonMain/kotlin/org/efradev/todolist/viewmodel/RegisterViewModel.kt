@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
+import org.efradev.todolist.domain.RegisterResult
 import org.efradev.todolist.domain.RegisterUserUseCase
 
 sealed class RegisterState {
@@ -39,8 +40,11 @@ class RegisterViewModel(
                 lastName = lastName,
                 phoneNumber = phoneNumber
             ).fold(
-                onSuccess = { message ->
-                    state = RegisterState.Success(message)
+                onSuccess = { result ->
+                    when (result) {
+                        is RegisterResult.Success -> state = RegisterState.Success(result.message)
+                        is RegisterResult.Error -> state = RegisterState.Error(result.message)
+                    }
                 },
                 onFailure = { error ->
                     state = RegisterState.Error(error.message ?: "Error desconocido")

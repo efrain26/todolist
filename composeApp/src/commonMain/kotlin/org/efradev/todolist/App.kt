@@ -12,7 +12,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import org.efradev.todolist.data.UserCheckResult
 import org.efradev.todolist.view.EmailForm
 import org.efradev.todolist.view.LoginForm
 import org.efradev.todolist.view.RegisterForm
@@ -42,7 +41,7 @@ fun App() {
                         viewModel.checkEmail(email)
                     },
                     isLoading = state is EmailCheckState.Loading,
-                    errorMessage = (state as? EmailCheckState.Result)?.message
+                    errorMessage = (state as? EmailCheckState.Error)?.message
                         ?: (state as? EmailCheckState.Error)?.message
                 )
                 "register" -> RegisterForm(
@@ -55,11 +54,11 @@ fun App() {
             // Navegación automática según el estado
             LaunchedEffect(state) {
                 when (state) {
-                    is EmailCheckState.Result -> {
-                        when (state.result) {
-                            is UserCheckResult.Registered -> screen = "login"
-                            is UserCheckResult.NotRegistered -> screen = "register"
-                            else -> {}
+                    is EmailCheckState.Success -> {
+                        if (state.isRegistered) {
+                            screen = "login"
+                        } else {
+                            screen = "register"
                         }
                     }
                     else -> {}

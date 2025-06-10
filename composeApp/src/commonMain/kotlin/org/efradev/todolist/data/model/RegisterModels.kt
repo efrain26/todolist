@@ -28,3 +28,10 @@ data class UserData(
     val lastName: String,
     val phoneNumber: String
 )
+
+@Serializable
+data class UserCheckResponse(
+    val code: String,
+    val email: String
+)
+

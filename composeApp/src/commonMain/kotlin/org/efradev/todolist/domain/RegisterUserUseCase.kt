@@ -1,10 +1,15 @@
 package org.efradev.todolist.domain
 
-import org.efradev.todolist.data.UserRegisterRepository
+import org.efradev.todolist.data.UserRepository
 import org.efradev.todolist.data.model.RegisterRequest
 
+sealed interface RegisterResult {
+    data class Success(val message: String) : RegisterResult
+    data class Error(val message: String) : RegisterResult
+}
+
 class RegisterUserUseCase(
-    private val repository: UserRegisterRepository,
+    private val repository: UserRepository,
     private val stringResProvider: StringResProvider
 ) {
     suspend operator fun invoke(
@@ -14,7 +19,7 @@ class RegisterUserUseCase(
         firstName: String,
         lastName: String,
         phoneNumber: String
-    ): Result<String> {
+    ): Result<RegisterResult> {
         val request = RegisterRequest(
             username = username,
             password = password,
@@ -25,7 +30,7 @@ class RegisterUserUseCase(
         )
 
         return repository.registerUser(request).map { response ->
-            response.message ?: stringResProvider("register_success")
+            RegisterResult.Success(response.message ?: stringResProvider("register_success"))
         }
     }
 }

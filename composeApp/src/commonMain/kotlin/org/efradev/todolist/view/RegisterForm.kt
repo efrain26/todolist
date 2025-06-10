@@ -8,10 +8,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
+import org.efradev.todolist.di.appModule
+import org.efradev.todolist.di.initKoin
+import org.efradev.todolist.di.viewModelModule
 import org.efradev.todolist.viewmodel.RegisterState
 import org.efradev.todolist.viewmodel.RegisterViewModel
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+
 
 @Composable
 fun RegisterForm(email: String, onBack: () -> Unit, onRegisterSuccess: () -> Unit) {
@@ -276,11 +280,10 @@ fun RegisterForm(email: String, onBack: () -> Unit, onRegisterSuccess: () -> Uni
 @Preview
 @Composable
 fun RegisterFormPreview() {
-    MaterialTheme {
-        RegisterForm(
-            email = "usuario@ejemplo.com",
-            onBack = {},
-            onRegisterSuccess = {}
-        )
-    }
+    initKoin()
+    RegisterForm(
+        email = "usuario@ejemplo.com",
+        onBack = {},
+        onRegisterSuccess = {}
+    )
 }
