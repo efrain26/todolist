@@ -56,6 +56,7 @@ class UserRepositoryImpl(private val client: HttpClient) : UserRepository {
             }
             Result.success(response.body())
         } catch (e: Exception) {
+            e.printStackTrace()
             Result.failure(e)
         }
     }

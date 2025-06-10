@@ -30,7 +30,7 @@ class RegisterUserUseCase(
         )
 
         return repository.registerUser(request).map { response ->
-            RegisterResult.Success(response.message ?: stringResProvider("register_success"))
+            RegisterResult.Success(response.username ?: stringResProvider("register_success"))
         }
     }
 }

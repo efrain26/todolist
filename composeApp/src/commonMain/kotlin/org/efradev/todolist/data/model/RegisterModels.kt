@@ -14,9 +14,8 @@ data class RegisterRequest(
 
 @Serializable
 data class RegisterResponse(
-    val status: String,
-    val message: String,
-    val data: UserData? = null
+    val id: Int,
+    val username: String,
 )
 
 @Serializable

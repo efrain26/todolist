@@ -42,8 +42,8 @@ class RegisterViewModel(
             ).fold(
                 onSuccess = { result ->
                     when (result) {
-                        is RegisterResult.Success -> state = RegisterState.Success(result.message)
-                        is RegisterResult.Error -> state = RegisterState.Error(result.message)
+                        is RegisterResult.Success -> state = RegisterState.Success("Success")
+                        is RegisterResult.Error -> state = RegisterState.Error("Error")
                     }
                 },
                 onFailure = { error ->
