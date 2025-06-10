@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import org.efradev.todolist.di.initKoin
 import org.efradev.todolist.view.EmailForm
 import org.efradev.todolist.view.LoginForm
 import org.efradev.todolist.view.RegisterForm
@@ -21,7 +22,6 @@ import org.efradev.todolist.viewmodel.EmailCheckState
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-@Preview
 fun App() {
     MaterialTheme {
         var screen by remember { mutableStateOf("email") }
@@ -49,7 +49,11 @@ fun App() {
                     onBack = { screen = "email" },
                     onRegisterSuccess = { screen = "login" }
                 )
-                "login" -> LoginForm(email) { screen = "email" }
+                "login" -> LoginForm(
+                    email = email,
+                    onBack = { screen = "email" },
+                    onLoginSuccess = { screen = "login" }
+                )
             }
             // Navegación automática según el estado
             LaunchedEffect(state) {
@@ -66,4 +70,12 @@ fun App() {
             }
         }
     }
+}
+
+@Preview
+@Composable
+fun AppPreview() {
+    initKoin()
+    App(
+    )
 }

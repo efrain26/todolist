@@ -12,6 +12,8 @@ import io.ktor.http.contentType
 import org.efradev.todolist.data.model.RegisterRequest
 import org.efradev.todolist.data.model.RegisterResponse
 import org.efradev.todolist.data.model.UserCheckResponse
+import org.efradev.todolist.data.model.LoginRequest
+import org.efradev.todolist.data.model.LoginResponse
 
 sealed class UserCheckResult {
     object Registered : UserCheckResult()
@@ -24,6 +26,8 @@ interface UserRepository {
     suspend fun checkUser(email: String): Result<UserCheckResult>
 
     suspend fun registerUser(request: RegisterRequest): Result<RegisterResponse>
+
+    suspend fun login(email: String, password: String): Result<LoginResponse>
 }
 
 class UserRepositoryImpl(private val client: HttpClient) : UserRepository {
@@ -57,6 +61,18 @@ class UserRepositoryImpl(private val client: HttpClient) : UserRepository {
             Result.success(response.body())
         } catch (e: Exception) {
             e.printStackTrace()
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun login(email: String, password: String): Result<LoginResponse> {
+        return try {
+            val response = client.post("https://platform-production-c248.up.railway.app/api/v1/auth/login") {
+                contentType(ContentType.Application.Json)
+                setBody(LoginRequest(email, password))
+            }
+            Result.success(response.body())
+        } catch (e: Exception) {
             Result.failure(e)
         }
     }
