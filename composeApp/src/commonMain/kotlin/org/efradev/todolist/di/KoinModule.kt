@@ -19,6 +19,9 @@ import org.koin.core.module.Module
 import org.efradev.todolist.domain.RegisterUserUseCase
 import org.efradev.todolist.viewmodel.LoginViewModel
 import org.efradev.todolist.viewmodel.RegisterViewModel
+import org.efradev.todolist.data.AuthLocalStorage
+import org.efradev.todolist.data.AuthLocalStorageImpl
+import org.efradev.todolist.getPlatform
 
 val appModule = module {
     single {
@@ -31,7 +34,9 @@ val appModule = module {
         }
     }
     single<StringResProvider> { provideStringResProvider() }
-    single<UserRepository> { UserRepositoryImpl(get()) }
+    single { getPlatform().createSettings() }
+    single<AuthLocalStorage> { AuthLocalStorageImpl(get()) }
+    single<UserRepository> { UserRepositoryImpl(get(), get()) }
     single { CheckUserExistsUseCase(get(), get()) }
     single { RegisterUserUseCase(get(), get()) }
     single { LoginUseCase(get(), get()) }

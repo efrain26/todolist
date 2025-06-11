@@ -6,9 +6,7 @@ sealed interface LoginResult {
     val message: String
 
     data class Success(
-        override val message: String,
-        val accessToken: String,
-        val refreshToken: String
+        override val message: String
     ) : LoginResult
 
     data class Error(override val message: String) : LoginResult
@@ -22,8 +20,6 @@ class LoginUseCase(
         return repository.login(email, password).map { response ->
             LoginResult.Success(
                 message = stringRes("login_success"),
-                accessToken = response.accessToken,
-                refreshToken = response.refreshToken
             )
         }
     }

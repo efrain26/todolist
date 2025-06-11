@@ -53,6 +53,7 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
+            implementation("com.russhwolf:multiplatform-settings:1.0.0")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
@@ -90,4 +91,3 @@ android {
 dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
 }
-

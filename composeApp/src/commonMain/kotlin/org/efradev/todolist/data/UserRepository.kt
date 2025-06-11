@@ -12,7 +12,6 @@ import io.ktor.http.contentType
 import org.efradev.todolist.data.model.RegisterRequest
 import org.efradev.todolist.data.model.RegisterResponse
 import org.efradev.todolist.data.model.UserCheckResponse
-import org.efradev.todolist.data.model.LoginRequest
 import org.efradev.todolist.data.model.LoginResponse
 
 sealed class UserCheckResult {
@@ -30,7 +29,10 @@ interface UserRepository {
     suspend fun login(email: String, password: String): Result<LoginResponse>
 }
 
-class UserRepositoryImpl(private val client: HttpClient) : UserRepository {
+class UserRepositoryImpl(
+    private val client: HttpClient,
+    private val authLocalStorage: AuthLocalStorage
+) : UserRepository {
 
     override suspend fun checkUser(email: String): Result<UserCheckResult> {
         return try {
@@ -68,10 +70,16 @@ class UserRepositoryImpl(private val client: HttpClient) : UserRepository {
     override suspend fun login(email: String, password: String): Result<LoginResponse> {
         return try {
             val response = client.post("https://platform-production-c248.up.railway.app/api/v1/auth/login") {
-                contentType(ContentType.Application.Json)
-                setBody(LoginRequest(email, password))
+                contentType(ContentType.Application.FormUrlEncoded)
+                setBody("username=${email}&password=${password}")
             }
-            Result.success(response.body())
+            val loginResponse = response.body<LoginResponse>()
+            // Guardar los tokens
+            authLocalStorage.saveTokens(
+                accessToken = loginResponse.accessToken,
+                refreshToken = loginResponse.refreshToken
+            )
+            Result.success(loginResponse)
         } catch (e: Exception) {
             Result.failure(e)
         }
