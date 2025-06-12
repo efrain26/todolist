@@ -22,6 +22,10 @@ import org.efradev.todolist.viewmodel.RegisterViewModel
 import org.efradev.todolist.data.AuthLocalStorage
 import org.efradev.todolist.data.AuthLocalStorageImpl
 import org.efradev.todolist.getPlatform
+import org.efradev.todolist.data.ShoppingListRepository
+import org.efradev.todolist.data.ShoppingListRepositoryImpl
+import org.efradev.todolist.domain.GetShoppingListsUseCase
+import org.efradev.todolist.viewmodel.ShoppingListsViewModel
 
 val appModule = module {
     single {
@@ -33,19 +37,27 @@ val appModule = module {
             }
         }
     }
-    single<StringResProvider> { provideStringResProvider() }
+
+    single { provideStringResProvider() }
     single { getPlatform().createSettings() }
+
+    //Repositories
     single<AuthLocalStorage> { AuthLocalStorageImpl(get()) }
-    single<UserRepository> { UserRepositoryImpl(get(), get()) }
+    single<UserRepository>{ UserRepositoryImpl(get(), get()) }
+    single<ShoppingListRepository> { ShoppingListRepositoryImpl(get(), get()) }
+
+    //Use Cases
     single { CheckUserExistsUseCase(get(), get()) }
     single { RegisterUserUseCase(get(), get()) }
     single { LoginUseCase(get(), get()) }
+    single { GetShoppingListsUseCase(get(), get()) }
 }
 
 val viewModelModule = module {
     factoryOf(::EmailCheckViewModel)
     factoryOf(::RegisterViewModel)
     factoryOf(::LoginViewModel)
+    factoryOf(::ShoppingListsViewModel)
 
 }
 

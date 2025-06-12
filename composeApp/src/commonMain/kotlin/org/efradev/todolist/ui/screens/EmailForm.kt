@@ -1,12 +1,14 @@
-package org.efradev.todolist.view
+package org.efradev.todolist.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.compose.ui.tooling.preview.Preview
 
@@ -26,7 +28,7 @@ fun EmailForm(
             Text(
                 text = "Mis Listas App",
                 modifier = Modifier.padding(bottom = 32.dp),
-                style = androidx.compose.material3.MaterialTheme.typography.headlineMedium
+                style = MaterialTheme.typography.headlineMedium
             )
             OutlinedTextField(
                 value = email,
@@ -43,7 +45,7 @@ fun EmailForm(
             }
             if (errorMessage != null) {
                 Spacer(Modifier.height(8.dp))
-                Text(errorMessage, color = androidx.compose.ui.graphics.Color.Red)
+                Text(errorMessage, color = Color.Red)
             }
         }
     }

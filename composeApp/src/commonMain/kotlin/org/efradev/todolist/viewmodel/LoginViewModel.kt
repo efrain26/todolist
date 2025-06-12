@@ -13,15 +13,14 @@ sealed class LoginState {
     object Idle : LoginState()
     object Loading : LoginState()
     data class Success(
-        val message: String,
-        val accessToken: String,
-        val refreshToken: String
+        val message: String
     ) : LoginState()
     data class Error(val message: String) : LoginState()
+    object NavigateToLists : LoginState()
 }
 
 class LoginViewModel(
-    private val loginUseCase: LoginUseCase
+    private val loginUseCase: LoginUseCase,
 ) : ViewModel() {
     var state by mutableStateOf<LoginState>(LoginState.Idle)
         private set
@@ -32,11 +31,13 @@ class LoginViewModel(
             loginUseCase(email, password).fold(
                 onSuccess = { result ->
                     when (result) {
-                        is LoginResult.Success -> state = LoginState.Success(
-                            message = result.message,
-                            accessToken = result.accessToken,
-                            refreshToken = result.refreshToken
-                        )
+                        is LoginResult.Success -> {
+                            state = LoginState.Success(
+                                message = result.message
+                            )
+                            // Navegar a la pantalla de listas después de un login exitoso
+                            state = LoginState.NavigateToLists
+                        }
                         is LoginResult.Error -> state = LoginState.Error(result.message)
                     }
                 },
@@ -46,4 +47,11 @@ class LoginViewModel(
             )
         }
     }
+}
+
+sealed interface LoginUiState {
+    data object Initial : LoginUiState
+    data object Loading : LoginUiState
+    data class Error(val message: String) : LoginUiState
+    data object NavigateToLists : LoginUiState
 }

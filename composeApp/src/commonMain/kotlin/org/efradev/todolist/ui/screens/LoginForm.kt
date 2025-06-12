@@ -1,4 +1,4 @@
-package org.efradev.todolist.view
+package org.efradev.todolist.ui.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -25,7 +25,10 @@ fun LoginForm(
     LaunchedEffect(viewModel.state) {
         when (val state = viewModel.state) {
             is LoginState.Success -> {
-                onLoginSuccess(state.accessToken)
+                onLoginSuccess(state.message)
+            }
+            is LoginState.NavigateToLists -> {
+                onLoginSuccess("Login exitoso")
             }
             else -> {}
         }

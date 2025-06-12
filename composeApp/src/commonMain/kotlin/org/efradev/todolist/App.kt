@@ -13,9 +13,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import org.efradev.todolist.di.initKoin
-import org.efradev.todolist.view.EmailForm
-import org.efradev.todolist.view.LoginForm
-import org.efradev.todolist.view.RegisterForm
+import org.efradev.todolist.ui.screens.ShoppingListsScreen
+import org.efradev.todolist.ui.screens.EmailForm
+import org.efradev.todolist.ui.screens.LoginForm
+import org.efradev.todolist.ui.screens.RegisterForm
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.efradev.todolist.viewmodel.EmailCheckViewModel
 import org.efradev.todolist.viewmodel.EmailCheckState
@@ -44,16 +45,20 @@ fun App() {
                     errorMessage = (state as? EmailCheckState.Error)?.message
                         ?: (state as? EmailCheckState.Error)?.message
                 )
+
                 "register" -> RegisterForm(
                     email = email,
                     onBack = { screen = "email" },
                     onRegisterSuccess = { screen = "login" }
                 )
+
                 "login" -> LoginForm(
                     email = email,
                     onBack = { screen = "email" },
-                    onLoginSuccess = { screen = "login" }
+                    onLoginSuccess = { screen = "shopping_lists" }
                 )
+
+                "shopping_lists" -> ShoppingListsScreen()
             }
             // Navegación automática según el estado
             LaunchedEffect(state) {
@@ -65,6 +70,7 @@ fun App() {
                             screen = "register"
                         }
                     }
+
                     else -> {}
                 }
             }
