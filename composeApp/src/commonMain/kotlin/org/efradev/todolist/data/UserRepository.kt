@@ -9,6 +9,7 @@ import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import org.efradev.todolist.data.model.LoginRequest
 import org.efradev.todolist.data.model.RegisterRequest
 import org.efradev.todolist.data.model.RegisterResponse
 import org.efradev.todolist.data.model.UserCheckResponse
@@ -26,7 +27,7 @@ interface UserRepository {
 
     suspend fun registerUser(request: RegisterRequest): Result<RegisterResponse>
 
-    suspend fun login(email: String, password: String): Result<LoginResponse>
+    suspend fun login(request: LoginRequest): Result<LoginResponse>
 }
 
 class UserRepositoryImpl(
@@ -36,7 +37,7 @@ class UserRepositoryImpl(
 
     override suspend fun checkUser(email: String): Result<UserCheckResult> {
         return try {
-            val response: HttpResponse = client.post("https://platform-production-c248.up.railway.app/api/v1/auth/validate-user") {
+            val response: HttpResponse = client.post("$BASE_URL/api/v1/auth/validate-user") {
                 parameter("email", email)
             }
             val body = response.body<UserCheckResponse>()
@@ -56,7 +57,7 @@ class UserRepositoryImpl(
 
     override suspend fun registerUser(request: RegisterRequest): Result<RegisterResponse> {
         return try {
-            val response = client.post("https://platform-production-c248.up.railway.app/api/v1/auth/register") {
+            val response = client.post("$BASE_URL/api/v1/auth/register") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }
@@ -67,11 +68,11 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun login(email: String, password: String): Result<LoginResponse> {
+    override suspend fun login(request: LoginRequest): Result<LoginResponse> {
         return try {
-            val response = client.post("https://platform-production-c248.up.railway.app/api/v1/auth/login") {
-                contentType(ContentType.Application.FormUrlEncoded)
-                setBody("username=${email}&password=${password}")
+            val response = client.post("$BASE_URL/api/v1/auth/login") {
+                contentType(ContentType.Application.Json)
+                setBody(request)
             }
             val loginResponse = response.body<LoginResponse>()
             // Guardar los tokens

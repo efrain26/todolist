@@ -9,7 +9,7 @@ import io.ktor.client.request.header
 interface ShoppingListRepository {
     suspend fun getShoppingLists(): Result<List<ShoppingList>>
 }
-
+const val BASE_URL = "https://platform-production-dbfb.up.railway.app"
 class ShoppingListRepositoryImpl(
     private val client: HttpClient,
     private val authLocalStorage: AuthLocalStorage
@@ -18,7 +18,7 @@ class ShoppingListRepositoryImpl(
     override suspend fun getShoppingLists(): Result<List<ShoppingList>> {
         return try {
             val token = authLocalStorage.getAccessToken()
-            val response = client.get("https://platform-production-c248.up.railway.app/api/v1/shopping/shopping-lists") {
+            val response = client.get("$BASE_URL/api/v1/shopping/shopping-lists") {
                 header("Authorization", "Bearer $token")
             }
             Result.success(response.body())
