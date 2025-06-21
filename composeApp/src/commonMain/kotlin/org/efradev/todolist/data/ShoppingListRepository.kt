@@ -18,7 +18,7 @@ class ShoppingListRepositoryImpl(
     override suspend fun getShoppingLists(): Result<List<ShoppingList>> {
         return try {
             val token = authLocalStorage.getAccessToken()
-            val response = client.get("$BASE_URL/api/v1/shopping/shopping-lists") {
+            val response = client.get("$BASE_URL/api/v1/shopping/userlists") {
                 header("Authorization", "Bearer $token")
             }
             Result.success(response.body())
