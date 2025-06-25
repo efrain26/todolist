@@ -9,6 +9,8 @@ import io.ktor.client.plugins.ResponseException
 import io.ktor.client.request.setBody
 import io.ktor.http.ContentType
 import io.ktor.http.contentType
+import org.efradev.todolist.data.local.AuthLocalStorage
+import org.efradev.todolist.data.model.AuthResponse
 import org.efradev.todolist.data.model.LoginRequest
 import org.efradev.todolist.data.model.RegisterRequest
 import org.efradev.todolist.data.model.RegisterResponse
@@ -27,7 +29,7 @@ interface UserRepository {
 
     suspend fun registerUser(request: RegisterRequest): Result<RegisterResponse>
 
-    suspend fun login(request: LoginRequest): Result<LoginResponse>
+    suspend fun login(request: LoginRequest): Result<AuthResponse>
 }
 
 class UserRepositoryImpl(
@@ -37,7 +39,7 @@ class UserRepositoryImpl(
 
     override suspend fun checkUser(email: String): Result<UserCheckResult> {
         return try {
-            val response: HttpResponse = client.post("$BASE_URL/api/v1/auth/validate-user") {
+            val response: HttpResponse = client.post("$BASE_URL/api/v1/auth/check-email") {
                 parameter("email", email)
             }
             val body = response.body<UserCheckResponse>()
@@ -68,17 +70,17 @@ class UserRepositoryImpl(
         }
     }
 
-    override suspend fun login(request: LoginRequest): Result<LoginResponse> {
+    override suspend fun login(request: LoginRequest): Result<AuthResponse> {
         return try {
             val response = client.post("$BASE_URL/api/v1/auth/login") {
                 contentType(ContentType.Application.Json)
                 setBody(request)
             }
-            val loginResponse = response.body<LoginResponse>()
+            val loginResponse = response.body<AuthResponse>()
             // Guardar los tokens
             authLocalStorage.saveTokens(
-                accessToken = loginResponse.accessToken,
-                refreshToken = loginResponse.refreshToken
+                accessToken = loginResponse.token.accessToken,
+                refreshToken = loginResponse.token.refreshToken
             )
             Result.success(loginResponse)
         } catch (e: Exception) {

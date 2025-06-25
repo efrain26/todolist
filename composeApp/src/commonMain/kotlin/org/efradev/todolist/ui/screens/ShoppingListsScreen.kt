@@ -13,6 +13,8 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -21,6 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.efradev.todolist.data.model.ShoppingList
 import org.efradev.todolist.di.initKoin
+import org.efradev.todolist.viewmodel.ProfileViewModel
 import org.efradev.todolist.viewmodel.ShoppingListsUiState
 import org.efradev.todolist.viewmodel.ShoppingListsViewModel
 import org.koin.compose.viewmodel.koinViewModel
@@ -28,9 +31,13 @@ import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ShoppingListsScreen() {
-    val viewModel: ShoppingListsViewModel = koinViewModel<ShoppingListsViewModel>()
-    
+fun ShoppingListsScreen(
+    onLogout: () -> Unit = {}
+) {
+    val viewModel: ShoppingListsViewModel = koinViewModel()
+    val profileViewModel: ProfileViewModel = koinViewModel()
+    val showMenu = remember { mutableStateOf(false) }
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -41,17 +48,33 @@ fun ShoppingListsScreen() {
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        IconButton(onClick = { /* TODO: Implement profile action */ }) {
-                            Box(
-                                modifier = Modifier
-                                    .size(32.dp)
-                                    .clip(MaterialTheme.shapes.medium)
+                        Box {
+                            IconButton(onClick = { showMenu.value = true }) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(32.dp)
+                                        .clip(MaterialTheme.shapes.medium)
+                                ) {
+                                    Surface(
+                                        color = MaterialTheme.colorScheme.surfaceVariant,
+                                        modifier = Modifier.fillMaxSize()
+                                    ) {}
+                                }
+                            }
+
+                            DropdownMenu(
+                                expanded = showMenu.value,
+                                onDismissRequest = { showMenu.value = false }
                             ) {
-                                // TODO: Replace with actual profile image
-                                Surface(
-                                    color = MaterialTheme.colorScheme.surfaceVariant,
-                                    modifier = Modifier.fillMaxSize()
-                                ) {}
+                                DropdownMenuItem(
+                                    text = { Text("Cerrar sesión") },
+                                    onClick = {
+                                        showMenu.value = false
+                                        profileViewModel.logout {
+                                            onLogout()
+                                        }
+                                    }
+                                )
                             }
                         }
                     }

@@ -5,7 +5,7 @@ import android.os.Build
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
 
-class AndroidPlatform(private val context: Context) : Platform {
+class AndroidPlatform(val context: Context) : Platform {
     override val name: String = "Android ${Build.VERSION.SDK_INT}"
 
     override fun createSettings(): Settings {

@@ -5,6 +5,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
 import io.ktor.client.request.header
+import org.efradev.todolist.data.local.AuthLocalStorage
 
 interface ShoppingListRepository {
     suspend fun getShoppingLists(): Result<List<ShoppingList>>
@@ -18,7 +19,7 @@ class ShoppingListRepositoryImpl(
     override suspend fun getShoppingLists(): Result<List<ShoppingList>> {
         return try {
             val token = authLocalStorage.getAccessToken()
-            val response = client.get("$BASE_URL/api/v1/shopping/userlists") {
+            val response = client.get("$BASE_URL/api/v1/shopping/lists") {
                 header("Authorization", "Bearer $token")
             }
             Result.success(response.body())

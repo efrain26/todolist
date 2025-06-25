@@ -17,6 +17,7 @@ import org.efradev.todolist.ui.screens.ShoppingListsScreen
 import org.efradev.todolist.ui.screens.EmailForm
 import org.efradev.todolist.ui.screens.LoginForm
 import org.efradev.todolist.ui.screens.RegisterForm
+import org.efradev.todolist.ui.screens.SplashScreen
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.efradev.todolist.viewmodel.EmailCheckViewModel
 import org.efradev.todolist.viewmodel.EmailCheckState
@@ -25,10 +26,11 @@ import org.koin.compose.viewmodel.koinViewModel
 @Composable
 fun App() {
     MaterialTheme {
-        var screen by remember { mutableStateOf("email") }
+        var screen by remember { mutableStateOf("splash") } // Cambiado a "splash" como estado inicial
         var email by remember { mutableStateOf("") }
         val viewModel: EmailCheckViewModel = koinViewModel<EmailCheckViewModel>()
         val state = viewModel.state
+
         Column(
             modifier = Modifier
                 .safeContentPadding()
@@ -36,6 +38,11 @@ fun App() {
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             when (screen) {
+                "splash" -> SplashScreen(
+                    onAuthenticated = { screen = "shopping_lists" },
+                    onNotAuthenticated = { screen = "email" }
+                )
+
                 "email" -> EmailForm(
                     onSubmit = { enteredEmail ->
                         email = enteredEmail
@@ -60,6 +67,7 @@ fun App() {
 
                 "shopping_lists" -> ShoppingListsScreen()
             }
+
             // Navegación automática según el estado
             LaunchedEffect(state) {
                 when (state) {

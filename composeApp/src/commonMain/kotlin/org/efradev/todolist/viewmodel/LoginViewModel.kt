@@ -20,7 +20,7 @@ sealed class LoginState {
 }
 
 class LoginViewModel(
-    private val loginUseCase: LoginUseCase,
+    private val loginUseCase: LoginUseCase
 ) : ViewModel() {
     var state by mutableStateOf<LoginState>(LoginState.Idle)
         private set
@@ -32,10 +32,6 @@ class LoginViewModel(
                 onSuccess = { result ->
                     when (result) {
                         is LoginResult.Success -> {
-                            state = LoginState.Success(
-                                message = result.message
-                            )
-                            // Navegar a la pantalla de listas después de un login exitoso
                             state = LoginState.NavigateToLists
                         }
                         is LoginResult.Error -> state = LoginState.Error(result.message)

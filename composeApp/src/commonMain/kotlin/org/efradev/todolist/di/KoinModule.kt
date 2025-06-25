@@ -12,20 +12,25 @@ import org.koin.core.module.dsl.factoryOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import org.efradev.todolist.domain.LoginUseCase
-import org.efradev.todolist.domain.StringResProvider
 import org.koin.core.context.startKoin
 import org.efradev.todolist.domain.provideStringResProvider
 import org.koin.core.module.Module
 import org.efradev.todolist.domain.RegisterUserUseCase
 import org.efradev.todolist.viewmodel.LoginViewModel
 import org.efradev.todolist.viewmodel.RegisterViewModel
-import org.efradev.todolist.data.AuthLocalStorage
-import org.efradev.todolist.data.AuthLocalStorageImpl
+import org.efradev.todolist.data.local.AuthLocalStorage
+import org.efradev.todolist.data.local.AuthLocalStorageImpl
 import org.efradev.todolist.getPlatform
 import org.efradev.todolist.data.ShoppingListRepository
 import org.efradev.todolist.data.ShoppingListRepositoryImpl
 import org.efradev.todolist.domain.GetShoppingListsUseCase
 import org.efradev.todolist.viewmodel.ShoppingListsViewModel
+import org.efradev.todolist.data.local.PreferencesRepository
+import org.efradev.todolist.data.local.PreferencesRepositoryImpl
+import org.efradev.todolist.domain.CheckAuthStateUseCase
+import org.efradev.todolist.viewmodel.AuthViewModel
+import org.efradev.todolist.domain.LogoutUseCase
+import org.efradev.todolist.viewmodel.ProfileViewModel
 
 val appModule = module {
     single {
@@ -46,11 +51,21 @@ val appModule = module {
     single<UserRepository>{ UserRepositoryImpl(get(), get()) }
     single<ShoppingListRepository> { ShoppingListRepositoryImpl(get(), get()) }
 
+    // Preferences Repository
+    single<PreferencesRepository> {
+        PreferencesRepositoryImpl(
+            settings = get(),
+            json = Json { ignoreUnknownKeys = true }
+        )
+    }
+
     //Use Cases
     single { CheckUserExistsUseCase(get(), get()) }
+    single { CheckAuthStateUseCase(get()) }
     single { RegisterUserUseCase(get(), get()) }
-    single { LoginUseCase(get(), get()) }
+    single { LoginUseCase(get(), get(), get()) }
     single { GetShoppingListsUseCase(get(), get()) }
+    single { LogoutUseCase(get(), get()) }
 }
 
 val viewModelModule = module {
@@ -58,7 +73,8 @@ val viewModelModule = module {
     factoryOf(::RegisterViewModel)
     factoryOf(::LoginViewModel)
     factoryOf(::ShoppingListsViewModel)
-
+    factoryOf(::AuthViewModel)
+    factoryOf(::ProfileViewModel)
 }
 
 fun initKoin() {

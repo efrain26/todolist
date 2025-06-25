@@ -1,4 +1,4 @@
-package org.efradev.todolist.data
+package org.efradev.todolist.data.local
 
 import com.russhwolf.settings.Settings
 
