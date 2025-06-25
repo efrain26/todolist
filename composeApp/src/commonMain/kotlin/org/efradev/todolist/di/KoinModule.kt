@@ -31,17 +31,21 @@ import org.efradev.todolist.domain.CheckAuthStateUseCase
 import org.efradev.todolist.viewmodel.AuthViewModel
 import org.efradev.todolist.domain.LogoutUseCase
 import org.efradev.todolist.viewmodel.ProfileViewModel
+import org.efradev.todolist.data.auth.AuthManager
+import org.koin.core.qualifier.named
 
 val appModule = module {
-    single {
-        val json = Json { ignoreUnknownKeys = true }
-        HttpClient {
-            install(ContentNegotiation) {
-                // TODO Fix API so it serves application/json
-                json(json, contentType = ContentType.Any)
-            }
-        }
+    // Json configuration
+    single { Json { ignoreUnknownKeys = true } }
+
+    // HttpClient instances
+    single(qualifier = named("authClient")) {
+        HttpClientFactory.create(useTokenAuthenticator = false, json = get())
     }
+
+    single { AuthManager(get(qualifier = named("authClient")), get()) }
+
+    single { HttpClientFactory.create(json = get()) }
 
     single { provideStringResProvider() }
     single { getPlatform().createSettings() }
