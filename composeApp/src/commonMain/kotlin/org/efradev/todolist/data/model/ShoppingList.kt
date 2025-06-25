@@ -7,6 +7,17 @@ import kotlinx.serialization.Serializable
 data class ShoppingList(
     val id: String,
     val name: String,
-    @SerialName("items_count")
-    val itemsCount: Int
+    @SerialName("created_at")
+    val createdAt: String,
+    @SerialName("user_id")
+    val userId: String,
+    val type: String,
+    val items: List<ShoppingItem> = emptyList()
+)
+
+@Serializable
+data class ShoppingItem(
+    val name: String,
+    val status: String,
+    val type: String
 )

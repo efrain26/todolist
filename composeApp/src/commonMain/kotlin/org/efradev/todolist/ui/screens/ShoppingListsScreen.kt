@@ -22,6 +22,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import org.efradev.todolist.data.model.ShoppingList
+import org.efradev.todolist.data.model.ShoppingItem
 import org.efradev.todolist.di.initKoin
 import org.efradev.todolist.viewmodel.ProfileViewModel
 import org.efradev.todolist.viewmodel.ShoppingListsUiState
@@ -189,7 +190,7 @@ private fun ShoppingListItem(list: ShoppingList) {
         },
         supportingContent = {
             Text(
-                text = "Items: ${list.itemsCount}",
+                text = "Items: ${list.items.size}",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 maxLines = 2,
@@ -225,22 +226,35 @@ fun ShoppingListsScreenPreview() {
         ShoppingList(
             id = "1",
             name = "Compras de la semana",
-            itemsCount = 1
+            createdAt = "2025-06-24T10:00:00",
+            userId = "user123",
+            type = "simple",
+            items = listOf(
+                ShoppingItem(
+                    name = "Frutas",
+                    status = "pendiente",
+                    type = "simple"
+                )
+            )
         ),
         ShoppingList(
             id = "2",
             name = "Lista de supermercado",
-            itemsCount = 1
-        ),
-        ShoppingList(
-            id = "1",
-            name = "Compras de la semana",
-            itemsCount = 1
-        ),
-        ShoppingList(
-            id = "2",
-            name = "Lista de supermercado",
-            itemsCount = 1
+            createdAt = "2025-06-24T11:00:00",
+            userId = "user123",
+            type = "simple",
+            items = listOf(
+                ShoppingItem(
+                    name = "Verduras",
+                    status = "pendiente",
+                    type = "simple"
+                ),
+                ShoppingItem(
+                    name = "Leche",
+                    status = "pendiente",
+                    type = "simple"
+                )
+            )
         )
     )
 
@@ -249,6 +263,5 @@ fun ShoppingListsScreenPreview() {
             lists = mockShoppingLists,
             modifier = Modifier.fillMaxSize()
         )
-//        ShoppingListsScreen()
     }
 }
