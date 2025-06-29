@@ -45,28 +45,37 @@
 
 ✅ **Configurado y funcionando:**
 - Kover plugin instalado y configurado
-- Tests unitarios ejecutándose (26 tests pasando)
+- Tests unitarios ejecutándose (45 tests pasando)
 - Reportes HTML y XML generándose correctamente
 - Tareas personalizadas disponibles
 
 📊 **Coverage actual:** 
-- **Líneas:** 6.00% (74/1213 líneas)
-- **Branches:** 6.00% (18/289 branches)  
-- **Instrucciones:** 4.00% (480/11761 instrucciones)
+- **Líneas:** 10.72% (130/1213 líneas) - ⬆️ +4.72%
+- **Branches:** 8.30% (24/289 branches) - ⬆️ +2.30%
+- **Instrucciones:** 6.49% (764/11763 instrucciones) - ⬆️ +2.49%
 
 🎯 **Tests implementados:**
 - ✅ CheckAuthStateUseCase (4 tests) - **100% coverage**
 - ✅ CheckUserExistsUseCase (6 tests) - **100% coverage**
 - ✅ CreateShoppingListUseCase (8 tests) - **100% coverage**
+- ✅ GetShoppingListsUseCase (4 tests) - **100% coverage** ⭐ NUEVO
+- ✅ LoginUseCase (5 tests) - **100% coverage** ⭐ NUEVO
+- ✅ LogoutUseCase (4 tests) - **100% coverage** ⭐ NUEVO
+- ✅ RegisterUserUseCase (6 tests) - **100% coverage** ⭐ NUEVO
 - ✅ CreateListViewModel (7 tests)
 - ✅ ComposeAppCommon (1 test)
 
-🎯 **Total:** 26 tests ejecutándose exitosamente
+🎯 **Total:** 45 tests ejecutándose exitosamente (+19 tests nuevos)
 
 📁 **Archivos de test creados/actualizados:**
 - CheckAuthStateUseCaseTest.kt (NUEVO)
 - CheckUserExistsUseCaseTest.kt (NUEVO)
 - CreateShoppingListUseCaseTest.kt (MEJORADO)
+- GetShoppingListsUseCaseTest.kt (NUEVO) ⭐
+- LoginUseCaseTest.kt (NUEVO) ⭐
+- LogoutUseCaseTest.kt (NUEVO) ⭐
+- RegisterUserUseCaseTest.kt (NUEVO) ⭐
+- TestFakes.kt (NUEVO) - Clases fake reutilizables ⭐
 
 🎯 **Próximo objetivo:** Continuar agregando tests de ViewModels y Repository layers para incrementar coverage general
 
@@ -78,7 +87,7 @@
 - Se agreguen nuevos patrones de testing
 - Se encuentren nuevos problemas/soluciones
 
-**Última actualización completa:** 28 de Junio, 2025 - Incremento significativo de coverage con nuevos Use Case tests
+**Última actualización completa:** 29 de Junio, 2025 - Segundo incremento significativo: +19 tests de Use Cases (GetShoppingListsUseCase, LoginUseCase, LogoutUseCase, RegisterUserUseCase)
 
 ---
 

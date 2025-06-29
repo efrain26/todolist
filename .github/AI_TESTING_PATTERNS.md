@@ -9,7 +9,12 @@ composeApp/src/commonTest/kotlin/org/efradev/todolist/
 ├── domain/
 │   ├── CreateShoppingListUseCaseTest.kt     # ✅ Use Case testing
 │   ├── CheckAuthStateUseCaseTest.kt         # ✅ Auth state testing
-│   └── CheckUserExistsUseCaseTest.kt        # ✅ User validation testing  
+│   ├── CheckUserExistsUseCaseTest.kt        # ✅ User validation testing
+│   ├── GetShoppingListsUseCaseTest.kt       # ✅ List retrieval testing ⭐ NUEVO
+│   ├── LoginUseCaseTest.kt                  # ✅ Login flow testing ⭐ NUEVO
+│   ├── LogoutUseCaseTest.kt                 # ✅ Logout flow testing ⭐ NUEVO
+│   ├── RegisterUserUseCaseTest.kt           # ✅ Registration testing ⭐ NUEVO
+│   └── TestFakes.kt                         # ✅ Shared fake objects ⭐ NUEVO
 ├── viewmodel/
 │   └── CreateListViewModelTest.kt           # ✅ ViewModel testing  
 └── data/
@@ -296,6 +301,107 @@ fun `should handle unexpected exception during execution`() = runTest {
 }
 ```
 
+### **✅ Repository Abstraction with Shared Fakes**
+```kotlin
+// TestFakes.kt - Clases fake centralizadas para evitar duplicación
+class FakeUserRepositoryForTests : UserRepository {
+    var nextLoginResult: Result<AuthResponse> = Result.success(defaultAuth)
+    var nextRegisterResult: Result<RegisterResponse> = Result.success(defaultResponse)
+    var lastLoginRequest: LoginRequest? = null
+    
+    override suspend fun login(request: LoginRequest): Result<AuthResponse> {
+        lastLoginRequest = request  // Capturar para verificación
+        return nextLoginResult
+    }
+}
+```
+
+### **✅ Login/Logout Flow Testing**
+```kotlin
+class LoginUseCaseTest {
+    @Test
+    fun `should save auth data when login succeeds`() = runTest {
+        // Given
+        fakeUserRepository.nextLoginResult = Result.success(expectedAuth)
+        
+        // When
+        val result = useCase(email, password)
+        
+        // Then
+        assertTrue(fakePreferencesRepository.saveAuthDataWasCalled)
+        assertEquals(expectedAuth, fakePreferencesRepository.authData)
+    }
+}
+```
+
+### **✅ Registration with Nullable Response Handling**
+```kotlin
+class RegisterUserUseCaseTest {
+    @Test
+    fun `should use default message when response username is null`() = runTest {
+        // Given
+        val responseWithNull = RegisterResponse(id = 123, username = null)
+        fakeUserRepository.nextRegisterResult = Result.success(responseWithNull)
+        fakeStringRes.strings["register_success"] = "Registro exitoso"
+        
+        // When & Then
+        val result = useCase(params...)
+        assertEquals("Registro exitoso", result.getOrNull()?.message)
+    }
+}
+```
+
+### **✅ Repository Error Propagation Testing**
+```kotlin
+@Test
+fun `should propagate repository failure when operation fails`() = runTest {
+    // Given
+    val exception = RuntimeException("Network error")
+    fakeRepository.nextResult = Result.failure(exception)
+    
+    // When
+    val result = useCase(params)
+    
+    // Then
+    assertTrue(result.isFailure)
+    assertEquals(exception, result.exceptionOrNull())
+}
+```
+
+### **✅ Data Model Consistency Testing**
+```kotlin
+@Test 
+fun `should create correct request with all provided parameters`() = runTest {
+    // When
+    val result = useCase(param1, param2, param3, param4, param5, param6)
+    
+    // Then
+    val capturedRequest = fakeRepository.lastRequest
+    assertEquals(param1, capturedRequest?.field1)
+    assertEquals(param2, capturedRequest?.field2)
+    // ... verificar todos los parámetros
+}
+```
+
 ---
 
-**Última actualización**: 28 de Junio, 2025
+## 📊 **Métricas de Coverage Alcanzadas**
+
+### **Domain Layer Coverage:**
+- ✅ **CheckAuthStateUseCase:** 100%
+- ✅ **CheckUserExistsUseCase:** 100%  
+- ✅ **CreateShoppingListUseCase:** 100%
+- ✅ **GetShoppingListsUseCase:** 100%
+- ✅ **LoginUseCase:** 100%
+- ✅ **LogoutUseCase:** 100%
+- ✅ **RegisterUserUseCase:** 100%
+
+### **Coverage General del Proyecto:**
+- **Líneas:** 10.72% (⬆️ +4.72% desde última iteración)
+- **Branches:** 8.30% (⬆️ +2.30%)
+- **Instrucciones:** 6.49% (⬆️ +2.49%)
+- **Tests:** 45 tests total (+19 tests nuevos)
+
+---
+
+**Última actualización**: 29 de Junio, 2025
