@@ -36,6 +36,9 @@ tail -10 composeApp/build/reports/kover/report.xml
 # ✅ Listar tests disponibles  
 find composeApp/src -name "*Test.kt"
 
+# ✅ Contar tests totales
+find composeApp/src -name "*Test.kt" -exec grep -c "@Test" {} \; | awk '{sum+=$1} END {print "Total tests:", sum}'
+
 # ✅ Estado de build
 ./gradlew :composeApp:build --dry-run
 ```

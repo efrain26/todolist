@@ -104,6 +104,81 @@ class CreateShoppingListUseCaseTest {
         assertTrue(actualResult is CreateShoppingListResult.Success)
         assertEquals("Mi Lista con Espacios", fakeRepository.lastCreateParams?.name)
     }
+
+    @Test
+    fun `should return error when name is empty string`() = runTest {
+        // Given
+        val emptyName = ""
+        val type = "simple"
+
+        // When
+        val result = useCase(emptyName, type)
+
+        // Then
+        assertTrue(result.isSuccess)
+        val actualResult = result.getOrNull()
+        assertTrue(actualResult is CreateShoppingListResult.Error)
+        assertEquals(
+            "El nombre de la lista es requerido", 
+            (actualResult as CreateShoppingListResult.Error).message
+        )
+    }
+
+    @Test
+    fun `should use default type when type is not provided`() = runTest {
+        // Given
+        val name = "Mi Lista"
+        val expectedList = ShoppingList(
+            id = "1",
+            name = name,
+            type = "simple", // Tipo por defecto
+            createdAt = "2025-06-28T10:00:00",
+            userId = "user123",
+            items = emptyList()
+        )
+        fakeRepository.nextResult = Result.success(expectedList)
+
+        // When
+        val result = useCase(name) // Sin especificar tipo
+
+        // Then
+        assertTrue(result.isSuccess)
+        val actualResult = result.getOrNull()
+        assertTrue(actualResult is CreateShoppingListResult.Success)
+        assertEquals("simple", fakeRepository.lastCreateParams?.type)
+    }
+
+    @Test
+    fun `should handle unexpected exception during execution`() = runTest {
+        // Given
+        val name = "Mi Lista"
+        val type = "simple"
+        fakeRepository.shouldThrowException = true
+
+        // When
+        val result = useCase(name, type)
+
+        // Then
+        assertTrue(result.isFailure)
+        assertTrue(result.exceptionOrNull() is RuntimeException)
+    }
+
+    @Test
+    fun `should return error when repository returns failure with null message`() = runTest {
+        // Given
+        val name = "Mi Lista"
+        val type = "simple"
+        fakeRepository.nextResult = Result.failure(Exception())
+
+        // When
+        val result = useCase(name, type)
+
+        // Then
+        assertTrue(result.isSuccess)
+        val actualResult = result.getOrNull()
+        assertTrue(actualResult is CreateShoppingListResult.Error)
+        assertEquals("Error al crear la lista", (actualResult as CreateShoppingListResult.Error).message)
+    }
 }
 
 /**
@@ -124,12 +199,16 @@ class FakeShoppingListRepository : ShoppingListRepository {
     
     data class CreateParams(val name: String, val type: String)
     var lastCreateParams: CreateParams? = null
+    var shouldThrowException = false
 
     override suspend fun getShoppingLists(): Result<List<ShoppingList>> {
         return Result.success(emptyList())
     }
 
     override suspend fun createList(name: String, type: String): Result<ShoppingList> {
+        if (shouldThrowException) {
+            throw RuntimeException("Forced exception")
+        }
         lastCreateParams = CreateParams(name, type)
         return nextResult
     }

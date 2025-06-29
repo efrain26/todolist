@@ -7,7 +7,9 @@
 ```
 composeApp/src/commonTest/kotlin/org/efradev/todolist/
 ├── domain/
-│   └── CreateShoppingListUseCaseTest.kt     # ✅ Use Case testing
+│   ├── CreateShoppingListUseCaseTest.kt     # ✅ Use Case testing
+│   ├── CheckAuthStateUseCaseTest.kt         # ✅ Auth state testing
+│   └── CheckUserExistsUseCaseTest.kt        # ✅ User validation testing  
 ├── viewmodel/
 │   └── CreateListViewModelTest.kt           # ✅ ViewModel testing  
 └── data/
@@ -231,6 +233,68 @@ fakeRepo.nextResult = Result.success(data)
 Ver archivos de referencia:
 - `CreateShoppingListUseCaseTest.kt` - Patrón Use Case completo
 - `CreateListViewModelTest.kt` - Patrón ViewModel completo
+
+---
+
+## 🆕 **Patrones Implementados Recientemente**
+
+### **✅ Authentication State Testing**
+```kotlin
+class CheckAuthStateUseCaseTest {
+    private val fakePreferencesRepository = FakePreferencesRepository()
+    private val useCase = CheckAuthStateUseCase(fakePreferencesRepository)
+
+    @Test
+    fun `should return authenticated state when user is logged in and has auth data`() = runTest {
+        // Given
+        val expectedUser = AuthResponse(user = testUser, token = testToken)
+        fakePreferencesRepository.isLoggedIn = true
+        fakePreferencesRepository.authData = expectedUser
+        
+        // When & Then
+        val result = useCase()
+        assertTrue(result.isSuccess)
+        assertTrue(result.getOrNull() is AuthState.Authenticated)
+    }
+}
+```
+
+### **✅ User Validation with Message Localization**
+```kotlin  
+class CheckUserExistsUseCaseTest {
+    private val fakeUserRepository = FakeUserRepository()
+    private val fakeStringRes = FakeStringResProvider()
+    private val useCase = CheckUserExistsUseCase(fakeUserRepository, fakeStringRes::getString)
+
+    @Test
+    fun `should return registered result when user exists`() = runTest {
+        // Given
+        fakeUserRepository.nextResult = Result.success(UserCheckResult.Registered)
+        fakeStringRes.strings["user_registered"] = "Usuario registrado"
+        
+        // When & Then
+        val result = useCase("test@example.com")
+        assertTrue(result.getOrNull() is UserCheckResultWithMessage.Registered)
+    }
+}
+```
+
+### **✅ Enhanced Shopping List Creation Testing**
+```kotlin
+// Casos adicionales implementados:
+@Test 
+fun `should use default type when type is not provided`() = runTest {
+    val result = useCase("Mi Lista") // Sin especificar tipo
+    assertEquals("simple", fakeRepository.lastCreateParams?.type)
+}
+
+@Test
+fun `should handle unexpected exception during execution`() = runTest {
+    fakeRepository.shouldThrowException = true
+    val result = useCase("name", "type")
+    assertTrue(result.isFailure)
+}
+```
 
 ---
 

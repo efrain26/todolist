@@ -45,13 +45,30 @@
 
 ✅ **Configurado y funcionando:**
 - Kover plugin instalado y configurado
-- Tests unitarios ejecutándose (12 tests pasando)
+- Tests unitarios ejecutándose (26 tests pasando)
 - Reportes HTML y XML generándose correctamente
 - Tareas personalizadas disponibles
 
-📊 **Coverage actual:** ~2-3% (normal en fases iniciales)
+📊 **Coverage actual:** 
+- **Líneas:** 6.00% (74/1213 líneas)
+- **Branches:** 6.00% (18/289 branches)  
+- **Instrucciones:** 4.00% (480/11761 instrucciones)
 
-🎯 **Próximo objetivo:** Incrementar coverage agregando más tests de Use Cases y ViewModels
+🎯 **Tests implementados:**
+- ✅ CheckAuthStateUseCase (4 tests) - **100% coverage**
+- ✅ CheckUserExistsUseCase (6 tests) - **100% coverage**
+- ✅ CreateShoppingListUseCase (8 tests) - **100% coverage**
+- ✅ CreateListViewModel (7 tests)
+- ✅ ComposeAppCommon (1 test)
+
+🎯 **Total:** 26 tests ejecutándose exitosamente
+
+📁 **Archivos de test creados/actualizados:**
+- CheckAuthStateUseCaseTest.kt (NUEVO)
+- CheckUserExistsUseCaseTest.kt (NUEVO)
+- CreateShoppingListUseCaseTest.kt (MEJORADO)
+
+🎯 **Próximo objetivo:** Continuar agregando tests de ViewModels y Repository layers para incrementar coverage general
 
 ## 📅 **Mantenimiento**
 
@@ -61,7 +78,7 @@
 - Se agreguen nuevos patrones de testing
 - Se encuentren nuevos problemas/soluciones
 
-**Última actualización completa:** 28 de Junio, 2025
+**Última actualización completa:** 28 de Junio, 2025 - Incremento significativo de coverage con nuevos Use Case tests
 
 ---
 
