@@ -104,13 +104,13 @@ class ViewModelTest {
 - ✅ Edge cases (input vacío, nulo, etc.)
 - ✅ Transformación de datos
 
-### **Presentation Layer (ViewModels)** - 🎯 Target: >80%
+### **Presentation Layer (ViewModels)** - 🎯 Target: >90%
 - ✅ Estados UI (Loading, Success, Error)
 - ✅ Navegación entre estados
 - ✅ Manejo de errores
 - ⚠️ Composición UI (requiere integration tests)
 
-### **Data Layer (Repositories)** - 🎯 Target: >70%
+### **Data Layer (Repositories)** - 🎯 Target: >90%
 - 🔄 Network layer mocking
 - 🔄 Local storage mocking  
 - 🔄 Cache strategies
