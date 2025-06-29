@@ -6,14 +6,14 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
-import org.efradev.todolist.data.model.ShoppingList
+import org.efradev.todolist.domain.model.DomainShoppingList
 import org.efradev.todolist.domain.GetShoppingListsUseCase
 
 sealed interface ShoppingListsUiState {
     data object Loading : ShoppingListsUiState
     data object Empty : ShoppingListsUiState
     data class Error(val message: String) : ShoppingListsUiState
-    data class Success(val lists: List<ShoppingList>) : ShoppingListsUiState
+    data class Success(val lists: List<DomainShoppingList>) : ShoppingListsUiState
 }
 
 class ShoppingListsViewModel(

@@ -1,16 +1,14 @@
 package org.efradev.todolist.domain
 
-import org.efradev.todolist.data.ShoppingListRepository
-import org.efradev.todolist.data.UserRepository
-import org.efradev.todolist.data.local.PreferencesRepository
-import org.efradev.todolist.data.model.AuthResponse
-import org.efradev.todolist.data.model.LoginRequest
-import org.efradev.todolist.data.model.RegisterRequest
-import org.efradev.todolist.data.model.RegisterResponse
-import org.efradev.todolist.data.model.ShoppingList
-import org.efradev.todolist.data.model.Token
-import org.efradev.todolist.data.model.User
-import org.efradev.todolist.data.UserCheckResult
+import org.efradev.todolist.domain.repository.ShoppingListRepository
+import org.efradev.todolist.domain.repository.UserRepository
+import org.efradev.todolist.domain.repository.PreferencesRepository
+import org.efradev.todolist.domain.repository.UserCheckResult
+import org.efradev.todolist.domain.model.DomainShoppingList
+import org.efradev.todolist.domain.model.DomainAuthData
+import org.efradev.todolist.domain.model.DomainUserRegistration
+import org.efradev.todolist.domain.model.DomainRegistrationResult
+import org.efradev.todolist.domain.model.DomainUser
 
 /**
  * Clases fake comunes para todos los tests de domain
@@ -21,9 +19,9 @@ import org.efradev.todolist.data.UserCheckResult
  * Implementación fake del ShoppingListRepository para testing
  */
 class FakeShoppingListRepositoryForTests : ShoppingListRepository {
-    var nextGetListsResult: Result<List<ShoppingList>> = Result.success(emptyList())
-    var nextCreateListResult: Result<ShoppingList> = Result.success(
-        ShoppingList(
+    var nextGetListsResult: Result<List<DomainShoppingList>> = Result.success(emptyList())
+    var nextCreateListResult: Result<DomainShoppingList> = Result.success(
+        DomainShoppingList(
             id = "1",
             name = "Test List",
             type = "simple",
@@ -37,12 +35,12 @@ class FakeShoppingListRepositoryForTests : ShoppingListRepository {
     data class CreateParams(val name: String, val type: String)
     var lastCreateParams: CreateParams? = null
 
-    override suspend fun getShoppingLists(): Result<List<ShoppingList>> {
+    override suspend fun getShoppingLists(): Result<List<DomainShoppingList>> {
         if (shouldThrowException) throw RuntimeException("Test exception")
         return nextGetListsResult
     }
 
-    override suspend fun createList(name: String, type: String): Result<ShoppingList> {
+    override suspend fun createList(name: String, type: String): Result<DomainShoppingList> {
         if (shouldThrowException) throw RuntimeException("Test exception")
         lastCreateParams = CreateParams(name, type)
         return nextCreateListResult
@@ -54,30 +52,41 @@ class FakeShoppingListRepositoryForTests : ShoppingListRepository {
  */
 class FakeUserRepositoryForTests : UserRepository {
     var nextCheckUserResult: Result<UserCheckResult> = Result.success(UserCheckResult.NotRegistered)
-    var nextRegisterResult: Result<RegisterResponse> = Result.success(RegisterResponse(1, "testuser"))
-    var nextLoginResult: Result<AuthResponse> = Result.success(
-        AuthResponse(
-            user = User("1", "user", "test@example.com", "Test", "User", "123"),
-            token = Token("token", "refresh", "Bearer")
+    var nextRegisterResult: Result<DomainRegistrationResult> = Result.success(
+        DomainRegistrationResult(id = "1", username = "testuser")
+    )
+    var nextLoginResult: Result<DomainAuthData> = Result.success(
+        DomainAuthData(
+            user = DomainUser(
+                id = "1",
+                username = "user",
+                email = "test@example.com",
+                firstName = "Test",
+                lastName = "User",
+                phoneNumber = "123"
+            ),
+            accessToken = "token",
+            refreshToken = "refresh",
+            tokenType = "Bearer"
         )
     )
     
     var lastEmailChecked: String? = null
-    var lastRegisterRequest: RegisterRequest? = null
-    var lastLoginRequest: LoginRequest? = null
+    var lastRegistrationData: DomainUserRegistration? = null
+    var lastLoginCredentials: Pair<String, String>? = null
 
     override suspend fun checkUser(email: String): Result<UserCheckResult> {
         lastEmailChecked = email
         return nextCheckUserResult
     }
 
-    override suspend fun registerUser(request: RegisterRequest): Result<RegisterResponse> {
-        lastRegisterRequest = request
+    override suspend fun registerUser(userData: DomainUserRegistration): Result<DomainRegistrationResult> {
+        lastRegistrationData = userData
         return nextRegisterResult
     }
 
-    override suspend fun login(request: LoginRequest): Result<AuthResponse> {
-        lastLoginRequest = request
+    override suspend fun login(email: String, password: String): Result<DomainAuthData> {
+        lastLoginCredentials = Pair(email, password)
         return nextLoginResult
     }
 }
@@ -87,19 +96,19 @@ class FakeUserRepositoryForTests : UserRepository {
  */
 class FakePreferencesRepositoryForTests : PreferencesRepository {
     var isLoggedIn: Boolean = false
-    var authData: AuthResponse? = null
+    var authData: DomainAuthData? = null
     var shouldThrowException: Boolean = false
     var saveAuthDataWasCalled: Boolean = false
     var clearAuthDataWasCalled: Boolean = false
 
-    override suspend fun saveAuthData(authResponse: AuthResponse) {
+    override suspend fun saveAuthData(authData: DomainAuthData) {
         saveAuthDataWasCalled = true
         if (shouldThrowException) throw RuntimeException("Test exception")
-        this.authData = authResponse
+        this.authData = authData
         this.isLoggedIn = true
     }
 
-    override suspend fun getAuthData(): AuthResponse? {
+    override suspend fun getAuthData(): DomainAuthData? {
         if (shouldThrowException) throw RuntimeException("Test exception")
         return authData
     }
@@ -122,8 +131,18 @@ class FakePreferencesRepositoryForTests : PreferencesRepository {
  */
 class FakeStringResProviderForTests {
     val strings = mutableMapOf<String, String>()
+    
+    init {
+        // Valores por defecto para strings comunes
+        strings["user_registered"] = "Usuario registrado"
+        strings["user_not_registered"] = "Usuario no registrado"
+        strings["unexpected_error"] = "Error inesperado"
+        strings["register_success"] = "Registro exitoso"
+        strings["logout_success"] = "Sesión cerrada"
+        strings["logout_error"] = "Error al cerrar sesión"
+    }
 
     fun getString(key: String): String {
-        return strings[key] ?: "Missing string: $key"
+        return strings[key] ?: "String not found: $key"
     }
 }

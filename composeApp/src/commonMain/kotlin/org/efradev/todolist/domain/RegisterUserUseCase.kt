@@ -1,7 +1,7 @@
 package org.efradev.todolist.domain
 
-import org.efradev.todolist.data.UserRepository
-import org.efradev.todolist.data.model.RegisterRequest
+import org.efradev.todolist.domain.repository.UserRepository
+import org.efradev.todolist.domain.model.DomainUserRegistration
 
 sealed interface RegisterResult {
     data class Success(val message: String) : RegisterResult
@@ -20,7 +20,7 @@ class RegisterUserUseCase(
         lastName: String,
         phoneNumber: String
     ): Result<RegisterResult> {
-        val request = RegisterRequest(
+        val userData = DomainUserRegistration(
             username = username,
             password = password,
             email = email,
@@ -29,8 +29,8 @@ class RegisterUserUseCase(
             phoneNumber = phoneNumber
         )
 
-        return repository.registerUser(request).map { response ->
-            RegisterResult.Success(response.username ?: stringResProvider("register_success"))
+        return repository.registerUser(userData).map { result ->
+            RegisterResult.Success(result.username?.takeIf { it.isNotEmpty() } ?: stringResProvider("register_success"))
         }
     }
 }

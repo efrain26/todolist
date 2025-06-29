@@ -1,7 +1,7 @@
 package org.efradev.todolist.domain
 
-import org.efradev.todolist.data.local.PreferencesRepository
-import org.efradev.todolist.data.model.AuthResponse
+import org.efradev.todolist.domain.repository.PreferencesRepository
+import org.efradev.todolist.domain.model.DomainAuthData
 
 class CheckAuthStateUseCase(
     private val preferencesRepository: PreferencesRepository
@@ -26,6 +26,6 @@ class CheckAuthStateUseCase(
 }
 
 sealed interface AuthState {
-    data class Authenticated(val authData: AuthResponse) : AuthState
+    data class Authenticated(val authData: DomainAuthData) : AuthState
     object NotAuthenticated : AuthState
 }

@@ -1,12 +1,9 @@
 package org.efradev.todolist.domain
 
 import kotlinx.coroutines.test.runTest
-import org.efradev.todolist.data.UserRepository
-import org.efradev.todolist.data.model.AuthResponse
-import org.efradev.todolist.data.model.LoginRequest
-import org.efradev.todolist.data.model.RegisterRequest
-import org.efradev.todolist.data.model.RegisterResponse
-import org.efradev.todolist.data.UserCheckResult
+import org.efradev.todolist.domain.repository.UserRepository
+import org.efradev.todolist.domain.model.DomainRegistrationResult
+import org.efradev.todolist.domain.model.DomainUserRegistration
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -33,8 +30,8 @@ class RegisterUserUseCaseTest {
         val lastName = "User"
         val phoneNumber = "1234567890"
         
-        val expectedResponse = RegisterResponse(
-            id = 123,
+        val expectedResponse = DomainRegistrationResult(
+            id = "123",
             username = "testuser"
         )
         fakeUserRepository.nextRegisterResult = Result.success(expectedResponse)
@@ -49,13 +46,13 @@ class RegisterUserUseCaseTest {
         assertEquals("testuser", (registerResult as RegisterResult.Success).message)
         
         // Verificar que se creó la request correctamente
-        val capturedRequest = fakeUserRepository.lastRegisterRequest
-        assertEquals(username, capturedRequest?.username)
-        assertEquals(password, capturedRequest?.password)
-        assertEquals(email, capturedRequest?.email)
-        assertEquals(firstName, capturedRequest?.firstName)
-        assertEquals(lastName, capturedRequest?.lastName)
-        assertEquals(phoneNumber, capturedRequest?.phoneNumber)
+        val capturedRegistration = fakeUserRepository.lastRegistrationData
+        assertEquals(username, capturedRegistration?.username)
+        assertEquals(password, capturedRegistration?.password)
+        assertEquals(email, capturedRegistration?.email)
+        assertEquals(firstName, capturedRegistration?.firstName)
+        assertEquals(lastName, capturedRegistration?.lastName)
+        assertEquals(phoneNumber, capturedRegistration?.phoneNumber)
     }
 
     @Test
@@ -68,8 +65,8 @@ class RegisterUserUseCaseTest {
         val lastName = "User"
         val phoneNumber = "1234567890"
         
-        val responseWithNullUsername = RegisterResponse(
-            id = 123,
+        val responseWithNullUsername = DomainRegistrationResult(
+            id = "123",
             username = null
         )
         fakeUserRepository.nextRegisterResult = Result.success(responseWithNullUsername)
@@ -116,20 +113,20 @@ class RegisterUserUseCaseTest {
         val lastName = "User"
         val phoneNumber = "9876543210"
         
-        fakeUserRepository.nextRegisterResult = Result.success(RegisterResponse(456, "newuser"))
+        fakeUserRepository.nextRegisterResult = Result.success(DomainRegistrationResult("456", "newuser"))
 
         // When
         val result = useCase(username, password, email, firstName, lastName, phoneNumber)
 
         // Then
         assertTrue(result.isSuccess)
-        val capturedRequest = fakeUserRepository.lastRegisterRequest
-        assertEquals(username, capturedRequest?.username)
-        assertEquals(password, capturedRequest?.password)
-        assertEquals(email, capturedRequest?.email)
-        assertEquals(firstName, capturedRequest?.firstName)
-        assertEquals(lastName, capturedRequest?.lastName)
-        assertEquals(phoneNumber, capturedRequest?.phoneNumber)
+        val capturedRegistration = fakeUserRepository.lastRegistrationData
+        assertEquals(username, capturedRegistration?.username)
+        assertEquals(password, capturedRegistration?.password)
+        assertEquals(email, capturedRegistration?.email)
+        assertEquals(firstName, capturedRegistration?.firstName)
+        assertEquals(lastName, capturedRegistration?.lastName)
+        assertEquals(phoneNumber, capturedRegistration?.phoneNumber)
     }
 
     @Test
@@ -142,20 +139,20 @@ class RegisterUserUseCaseTest {
         val lastName = ""
         val phoneNumber = ""
         
-        fakeUserRepository.nextRegisterResult = Result.success(RegisterResponse(789, ""))
+        fakeUserRepository.nextRegisterResult = Result.success(DomainRegistrationResult("789", ""))
 
         // When
         val result = useCase(username, password, email, firstName, lastName, phoneNumber)
 
         // Then
         assertTrue(result.isSuccess)
-        val capturedRequest = fakeUserRepository.lastRegisterRequest
-        assertEquals(username, capturedRequest?.username)
-        assertEquals(password, capturedRequest?.password)
-        assertEquals(email, capturedRequest?.email)
-        assertEquals(firstName, capturedRequest?.firstName)
-        assertEquals(lastName, capturedRequest?.lastName)
-        assertEquals(phoneNumber, capturedRequest?.phoneNumber)
+        val capturedRegistration = fakeUserRepository.lastRegistrationData
+        assertEquals(username, capturedRegistration?.username)
+        assertEquals(password, capturedRegistration?.password)
+        assertEquals(email, capturedRegistration?.email)
+        assertEquals(firstName, capturedRegistration?.firstName)
+        assertEquals(lastName, capturedRegistration?.lastName)
+        assertEquals(phoneNumber, capturedRegistration?.phoneNumber)
     }
 
     @Test
@@ -163,7 +160,7 @@ class RegisterUserUseCaseTest {
         // Given
         val responseUsername = "successful_user"
         fakeUserRepository.nextRegisterResult = Result.success(
-            RegisterResponse(999, responseUsername)
+            DomainRegistrationResult("999", responseUsername)
         )
 
         // When

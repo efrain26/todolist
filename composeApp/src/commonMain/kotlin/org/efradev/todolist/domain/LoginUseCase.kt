@@ -1,9 +1,7 @@
 package org.efradev.todolist.domain
 
-import org.efradev.todolist.data.UserRepository
-import org.efradev.todolist.data.local.PreferencesRepository
-import org.efradev.todolist.data.model.LoginRequest
-import org.efradev.todolist.data.model.LoginResponse
+import org.efradev.todolist.domain.repository.UserRepository
+import org.efradev.todolist.domain.repository.PreferencesRepository
 
 sealed interface LoginResult {
     val message: String
@@ -21,20 +19,14 @@ class LoginUseCase(
     private val stringResProvider: StringResProvider
 ) {
     suspend operator fun invoke(email: String, password: String): Result<LoginResult> {
-
-        val request = LoginRequest(
-            email = email,
-            password = password
+        return repository.login(email, password).fold(
+            onSuccess = { authData ->
+                preferencesRepository.saveAuthData(authData)
+                Result.success(LoginResult.Success(""))
+            },
+            onFailure = { throwable ->
+                Result.failure(throwable)
+            }
         )
-        return repository.login(request).fold(
-                onSuccess = {
-                    preferencesRepository.saveAuthData(it)
-                    Result.success(LoginResult.Success(""))
-                },
-                onFailure = { throwable ->
-                    Result.failure(throwable)
-                }
-            )
-
     }
 }

@@ -1,6 +1,6 @@
 package org.efradev.todolist.domain
 
-import org.efradev.todolist.data.local.PreferencesRepository
+import org.efradev.todolist.domain.repository.PreferencesRepository
 
 sealed interface LogoutResult {
     data class Success(val message: String) : LogoutResult

@@ -8,7 +8,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.efradev.todolist.data.model.ShoppingList
+import org.efradev.todolist.domain.model.DomainShoppingList
 import org.efradev.todolist.domain.CreateShoppingListResult
 import org.efradev.todolist.domain.CreateShoppingListUseCase
 import kotlin.test.BeforeTest
@@ -71,7 +71,7 @@ class CreateListViewModelTest {
         val type = "simple"
         fakeUseCase.nextResult = Result.success(
             CreateShoppingListResult.Success(
-                ShoppingList(
+                DomainShoppingList(
                     id = "1",
                     name = name,
                     type = type,
@@ -97,7 +97,7 @@ class CreateListViewModelTest {
         // Given
         val name = "Mi Lista Exitosa"
         val type = "compras"
-        val expectedList = ShoppingList(
+        val expectedList = DomainShoppingList(
             id = "1",
             name = name,
             type = type,
@@ -151,7 +151,7 @@ class CreateListViewModelTest {
         val type = "simple"
         fakeUseCase.nextResult = Result.success(
             CreateShoppingListResult.Success(
-                ShoppingList(
+                DomainShoppingList(
                     id = "1",
                     name = "Mi Lista con Espacios",
                     type = type,
@@ -177,7 +177,7 @@ class CreateListViewModelTest {
 class FakeCreateShoppingListUseCase {
     var nextResult: Result<CreateShoppingListResult> = Result.success(
         CreateShoppingListResult.Success(
-            ShoppingList(
+            DomainShoppingList(
                 id = "1",
                 name = "Test List",
                 type = "simple",

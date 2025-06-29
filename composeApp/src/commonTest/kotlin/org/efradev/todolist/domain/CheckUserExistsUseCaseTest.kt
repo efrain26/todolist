@@ -1,8 +1,8 @@
 package org.efradev.todolist.domain
 
 import kotlinx.coroutines.test.runTest
-import org.efradev.todolist.data.UserCheckResult
-import org.efradev.todolist.data.UserRepository
+import org.efradev.todolist.domain.repository.UserCheckResult
+import org.efradev.todolist.domain.repository.UserRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -16,15 +16,15 @@ import kotlin.test.assertTrue
  */
 class CheckUserExistsUseCaseTest {
 
-    private val fakeUserRepository = FakeUserRepository()
-    private val fakeStringRes = FakeStringResProvider()
+    private val fakeUserRepository = FakeUserRepositoryForTests()
+    private val fakeStringRes = FakeStringResProviderForTests()
     private val useCase = CheckUserExistsUseCase(fakeUserRepository, fakeStringRes::getString)
 
     @Test
     fun `should return registered result when user exists`() = runTest {
         // Given
         val email = "test@example.com"
-        fakeUserRepository.nextResult = Result.success(UserCheckResult.Registered)
+        fakeUserRepository.nextCheckUserResult = Result.success(UserCheckResult.Registered)
         fakeStringRes.strings["user_registered"] = "Usuario registrado"
 
         // When
@@ -42,7 +42,7 @@ class CheckUserExistsUseCaseTest {
     fun `should return not registered result when user does not exist`() = runTest {
         // Given
         val email = "nonexistent@example.com"
-        fakeUserRepository.nextResult = Result.success(UserCheckResult.NotRegistered)
+        fakeUserRepository.nextCheckUserResult = Result.success(UserCheckResult.NotRegistered)
         fakeStringRes.strings["user_not_registered"] = "Usuario no registrado"
 
         // When
@@ -62,7 +62,7 @@ class CheckUserExistsUseCaseTest {
         val email = "error@example.com"
         val errorCode = "NETWORK_ERROR"
         val errorMessage = "Network connection failed"
-        fakeUserRepository.nextResult = Result.success(UserCheckResult.Error(errorCode, errorMessage))
+        fakeUserRepository.nextCheckUserResult = Result.success(UserCheckResult.Error(errorCode, errorMessage))
 
         // When
         val result = useCase(email)
@@ -78,7 +78,7 @@ class CheckUserExistsUseCaseTest {
     fun `should return error result with default message when repository returns error without message`() = runTest {
         // Given
         val email = "error@example.com"
-        fakeUserRepository.nextResult = Result.success(UserCheckResult.Error("CODE", null))
+        fakeUserRepository.nextCheckUserResult = Result.success(UserCheckResult.Error("CODE", null))
         fakeStringRes.strings["unexpected_error"] = "Error inesperado"
 
         // When
@@ -96,7 +96,7 @@ class CheckUserExistsUseCaseTest {
         // Given
         val email = "test@example.com"
         val exception = RuntimeException("Repository failure")
-        fakeUserRepository.nextResult = Result.failure(exception)
+        fakeUserRepository.nextCheckUserResult = Result.failure(exception)
 
         // When
         val result = useCase(email)
@@ -110,7 +110,7 @@ class CheckUserExistsUseCaseTest {
     fun `should handle empty email properly`() = runTest {
         // Given
         val email = ""
-        fakeUserRepository.nextResult = Result.success(UserCheckResult.Error("INVALID_EMAIL", "Email requerido"))
+        fakeUserRepository.nextCheckUserResult = Result.success(UserCheckResult.Error("INVALID_EMAIL", "Email requerido"))
 
         // When
         val result = useCase(email)
@@ -121,37 +121,5 @@ class CheckUserExistsUseCaseTest {
         assertTrue(userResult is UserCheckResultWithMessage.Error)
         assertEquals("Email requerido", (userResult as UserCheckResultWithMessage.Error).message)
         assertEquals(email, fakeUserRepository.lastEmailChecked)
-    }
-}
-
-/**
- * Implementación fake del UserRepository para testing
- */
-class FakeUserRepository : UserRepository {
-    var nextResult: Result<UserCheckResult> = Result.success(UserCheckResult.NotRegistered)
-    var lastEmailChecked: String? = null
-
-    override suspend fun checkUser(email: String): Result<UserCheckResult> {
-        lastEmailChecked = email
-        return nextResult
-    }
-
-    override suspend fun registerUser(request: org.efradev.todolist.data.model.RegisterRequest): Result<org.efradev.todolist.data.model.RegisterResponse> {
-        TODO("Not needed for this test")
-    }
-
-    override suspend fun login(request: org.efradev.todolist.data.model.LoginRequest): Result<org.efradev.todolist.data.model.AuthResponse> {
-        TODO("Not needed for this test")
-    }
-}
-
-/**
- * Implementación fake del StringResProvider para testing
- */
-class FakeStringResProvider {
-    val strings = mutableMapOf<String, String>()
-
-    fun getString(key: String): String {
-        return strings[key] ?: "Missing string: $key"
     }
 }

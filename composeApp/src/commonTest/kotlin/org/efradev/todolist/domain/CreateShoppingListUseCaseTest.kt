@@ -1,8 +1,8 @@
 package org.efradev.todolist.domain
 
 import kotlinx.coroutines.test.runTest
-import org.efradev.todolist.data.ShoppingListRepository
-import org.efradev.todolist.data.model.ShoppingList
+import org.efradev.todolist.domain.repository.ShoppingListRepository
+import org.efradev.todolist.domain.model.DomainShoppingList
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -16,7 +16,7 @@ import kotlin.test.assertTrue
 class CreateShoppingListUseCaseTest {
 
     // Mock del repositorio (usaremos una implementación fake para el ejemplo)
-    private val fakeRepository = FakeShoppingListRepository()
+    private val fakeRepository = FakeShoppingListRepositoryForTests()
     private val useCase = CreateShoppingListUseCase(fakeRepository)
 
     @Test
@@ -24,7 +24,7 @@ class CreateShoppingListUseCaseTest {
         // Given
         val name = "Mi Lista de Compras"
         val type = "compras"
-        val expectedList = ShoppingList(
+        val expectedList = DomainShoppingList(
             id = "1",
             name = name,
             type = type,
@@ -32,7 +32,7 @@ class CreateShoppingListUseCaseTest {
             userId = "user123",
             items = emptyList()
         )
-        fakeRepository.nextResult = Result.success(expectedList)
+        fakeRepository.nextCreateListResult = Result.success(expectedList)
 
         // When
         val result = useCase(name, type)
@@ -68,7 +68,7 @@ class CreateShoppingListUseCaseTest {
         // Given
         val name = "Mi Lista"
         val type = "simple"
-        fakeRepository.nextResult = Result.failure(Exception("Network error"))
+        fakeRepository.nextCreateListResult = Result.failure(Exception("Network error"))
 
         // When
         val result = useCase(name, type)
@@ -85,7 +85,7 @@ class CreateShoppingListUseCaseTest {
         // Given
         val nameWithWhitespace = "  Mi Lista con Espacios  "
         val type = "simple"
-        val expectedList = ShoppingList(
+        val expectedList = DomainShoppingList(
             id = "1",
             name = "Mi Lista con Espacios", // Sin espacios al inicio y final
             type = type,
@@ -93,7 +93,7 @@ class CreateShoppingListUseCaseTest {
             userId = "user123",
             items = emptyList()
         )
-        fakeRepository.nextResult = Result.success(expectedList)
+        fakeRepository.nextCreateListResult = Result.success(expectedList)
 
         // When
         val result = useCase(nameWithWhitespace, type)
@@ -128,7 +128,7 @@ class CreateShoppingListUseCaseTest {
     fun `should use default type when type is not provided`() = runTest {
         // Given
         val name = "Mi Lista"
-        val expectedList = ShoppingList(
+        val expectedList = DomainShoppingList(
             id = "1",
             name = name,
             type = "simple", // Tipo por defecto
@@ -136,7 +136,7 @@ class CreateShoppingListUseCaseTest {
             userId = "user123",
             items = emptyList()
         )
-        fakeRepository.nextResult = Result.success(expectedList)
+        fakeRepository.nextCreateListResult = Result.success(expectedList)
 
         // When
         val result = useCase(name) // Sin especificar tipo
@@ -168,7 +168,7 @@ class CreateShoppingListUseCaseTest {
         // Given
         val name = "Mi Lista"
         val type = "simple"
-        fakeRepository.nextResult = Result.failure(Exception())
+        fakeRepository.nextCreateListResult = Result.failure(Exception())
 
         // When
         val result = useCase(name, type)
@@ -181,35 +181,4 @@ class CreateShoppingListUseCaseTest {
     }
 }
 
-/**
- * Implementación fake del repositorio para testing
- * En un proyecto real, usarías MockK o similar
- */
-class FakeShoppingListRepository : ShoppingListRepository {
-    var nextResult: Result<ShoppingList> = Result.success(
-        ShoppingList(
-            id = "1",
-            name = "Test List",
-            type = "simple",
-            createdAt = "2025-06-28T10:00:00",
-            userId = "user123",
-            items = emptyList()
-        )
-    )
-    
-    data class CreateParams(val name: String, val type: String)
-    var lastCreateParams: CreateParams? = null
-    var shouldThrowException = false
 
-    override suspend fun getShoppingLists(): Result<List<ShoppingList>> {
-        return Result.success(emptyList())
-    }
-
-    override suspend fun createList(name: String, type: String): Result<ShoppingList> {
-        if (shouldThrowException) {
-            throw RuntimeException("Forced exception")
-        }
-        lastCreateParams = CreateParams(name, type)
-        return nextResult
-    }
-}

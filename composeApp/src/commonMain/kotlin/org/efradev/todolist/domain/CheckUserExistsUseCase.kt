@@ -1,7 +1,7 @@
 package org.efradev.todolist.domain
 
-import org.efradev.todolist.data.UserCheckResult
-import org.efradev.todolist.data.UserRepository
+import org.efradev.todolist.domain.repository.UserRepository
+import org.efradev.todolist.domain.repository.UserCheckResult
 
 // Para multiplataforma, define una interfaz para obtener strings de recursos
 typealias StringResProvider = (key: String) -> String

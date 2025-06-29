@@ -8,12 +8,12 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.efradev.todolist.domain.CreateShoppingListResult
 import org.efradev.todolist.domain.CreateShoppingListUseCase
-import org.efradev.todolist.data.model.ShoppingList
+import org.efradev.todolist.domain.model.DomainShoppingList
 
 sealed interface CreateListUiState {
     data object Idle : CreateListUiState
     data object Loading : CreateListUiState
-    data class Success(val list: ShoppingList) : CreateListUiState
+    data class Success(val list: DomainShoppingList) : CreateListUiState
     data class Error(val message: String) : CreateListUiState
 }
 

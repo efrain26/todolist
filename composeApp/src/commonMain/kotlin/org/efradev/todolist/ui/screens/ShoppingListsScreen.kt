@@ -24,7 +24,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import org.efradev.todolist.data.model.ShoppingList
+import org.efradev.todolist.domain.model.DomainShoppingList
+import org.efradev.todolist.domain.model.DomainShoppingItem
 import org.efradev.todolist.data.model.ShoppingItem
 import org.efradev.todolist.di.initKoin
 import org.efradev.todolist.ui.components.CreateListBottomSheet
@@ -200,7 +201,7 @@ private fun ErrorState(message: String) {
 
 @Composable
 private fun ShoppingListsContent(
-    lists: List<ShoppingList>,
+    lists: List<DomainShoppingList>,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -215,7 +216,7 @@ private fun ShoppingListsContent(
 }
 
 @Composable
-private fun ShoppingListItem(list: ShoppingList) {
+private fun ShoppingListItem(list: DomainShoppingList) {
     ListItem(
         headlineContent = { 
             Text(
@@ -258,33 +259,33 @@ private fun ShoppingListItem(list: ShoppingList) {
 fun ShoppingListsScreenPreview() {
     initKoin()
     val mockShoppingLists = listOf(
-        ShoppingList(
+        DomainShoppingList(
             id = "1",
             name = "Compras de la semana",
             createdAt = "2025-06-24T10:00:00",
             userId = "user123",
             type = "simple",
             items = listOf(
-                ShoppingItem(
+                DomainShoppingItem(
                     name = "Frutas",
                     status = "pendiente",
                     type = "simple"
                 )
             )
         ),
-        ShoppingList(
+        DomainShoppingList(
             id = "2",
             name = "Lista de supermercado",
             createdAt = "2025-06-24T11:00:00",
             userId = "user123",
             type = "simple",
             items = listOf(
-                ShoppingItem(
+                DomainShoppingItem(
                     name = "Verduras",
                     status = "pendiente",
                     type = "simple"
                 ),
-                ShoppingItem(
+                DomainShoppingItem(
                     name = "Leche",
                     status = "pendiente",
                     type = "simple"

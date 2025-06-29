@@ -1,8 +1,8 @@
 package org.efradev.todolist.domain
 
 import kotlinx.coroutines.test.runTest
-import org.efradev.todolist.data.ShoppingListRepository
-import org.efradev.todolist.data.model.ShoppingList
+import org.efradev.todolist.domain.repository.ShoppingListRepository
+import org.efradev.todolist.domain.model.DomainShoppingList
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -23,7 +23,7 @@ class GetShoppingListsUseCaseTest {
     fun `should return list of shopping lists when repository succeeds`() = runTest {
         // Given
         val expectedLists = listOf(
-            ShoppingList(
+            DomainShoppingList(
                 id = "1",
                 name = "Lista de Compras",
                 type = "compras",
@@ -31,7 +31,7 @@ class GetShoppingListsUseCaseTest {
                 userId = "user123",
                 items = emptyList()
             ),
-            ShoppingList(
+            DomainShoppingList(
                 id = "2",
                 name = "Lista Simple",
                 type = "simple",
@@ -53,7 +53,7 @@ class GetShoppingListsUseCaseTest {
     @Test
     fun `should return empty list when repository returns empty list`() = runTest {
         // Given
-        val emptyList = emptyList<ShoppingList>()
+        val emptyList = emptyList<DomainShoppingList>()
         fakeRepository.nextGetListsResult = Result.success(emptyList)
 
         // When

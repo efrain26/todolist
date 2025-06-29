@@ -1,8 +1,7 @@
 package org.efradev.todolist.domain
 
 import kotlinx.coroutines.test.runTest
-import org.efradev.todolist.data.local.PreferencesRepository
-import org.efradev.todolist.data.model.AuthResponse
+import org.efradev.todolist.domain.repository.PreferencesRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -56,17 +55,20 @@ class LogoutUseCaseTest {
     @Test
     fun `should handle missing string resources gracefully`() = runTest {
         // Given
-        // No se configuran los strings en fakeStringRes
+        // Crear una instancia sin valores por defecto
+        val emptyStringRes = FakeStringResProviderForTests()
+        emptyStringRes.strings.clear() // Limpiar valores por defecto
+        val testUseCase = LogoutUseCase(fakePreferencesRepository, emptyStringRes::getString)
         fakePreferencesRepository.shouldThrowException = false
 
         // When
-        val result = useCase()
+        val result = testUseCase()
 
         // Then
         assertTrue(result.isSuccess)
         val logoutResult = result.getOrNull()
         assertTrue(logoutResult is LogoutResult.Success)
-        assertEquals("Missing string: logout_success", (logoutResult as LogoutResult.Success).message)
+        assertEquals("String not found: logout_success", (logoutResult as LogoutResult.Success).message)
     }
 
     @Test

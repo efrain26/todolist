@@ -3,27 +3,26 @@ package org.efradev.todolist.data.local
 import com.russhwolf.settings.Settings
 import kotlinx.serialization.json.Json
 import org.efradev.todolist.data.model.AuthResponse
-
-interface PreferencesRepository {
-    suspend fun saveAuthData(authResponse: AuthResponse)
-    suspend fun getAuthData(): AuthResponse?
-    suspend fun clearAuthData()
-    suspend fun isUserLoggedIn(): Boolean
-}
+import org.efradev.todolist.data.mapper.toDomain
+import org.efradev.todolist.data.mapper.toDataResponse
+import org.efradev.todolist.domain.repository.PreferencesRepository
+import org.efradev.todolist.domain.model.DomainAuthData
 
 class PreferencesRepositoryImpl(
     private val settings: Settings,
     private val json: Json
 ) : PreferencesRepository {
 
-    override suspend fun saveAuthData(authResponse: AuthResponse) {
+    override suspend fun saveAuthData(authData: DomainAuthData) {
+        val authResponse = authData.toDataResponse()
         settings.putString(KEY_AUTH_DATA, json.encodeToString(AuthResponse.serializer(), authResponse))
     }
 
-    override suspend fun getAuthData(): AuthResponse? {
+    override suspend fun getAuthData(): DomainAuthData? {
         val authDataString = settings.getStringOrNull(KEY_AUTH_DATA)
         return authDataString?.let {
-            json.decodeFromString(AuthResponse.serializer(), it)
+            val authResponse = json.decodeFromString(AuthResponse.serializer(), it)
+            authResponse.toDomain()
         }
     }
 

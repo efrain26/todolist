@@ -4,7 +4,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import org.koin.dsl.module
-import org.efradev.todolist.data.UserRepository
+import org.efradev.todolist.domain.repository.UserRepository
 import org.efradev.todolist.data.UserRepositoryImpl
 import org.efradev.todolist.domain.CheckUserExistsUseCase
 import org.efradev.todolist.viewmodel.EmailCheckViewModel
@@ -21,11 +21,11 @@ import org.efradev.todolist.viewmodel.RegisterViewModel
 import org.efradev.todolist.data.local.AuthLocalStorage
 import org.efradev.todolist.data.local.AuthLocalStorageImpl
 import org.efradev.todolist.getPlatform
-import org.efradev.todolist.data.ShoppingListRepository
+import org.efradev.todolist.domain.repository.ShoppingListRepository
 import org.efradev.todolist.data.ShoppingListRepositoryImpl
 import org.efradev.todolist.domain.GetShoppingListsUseCase
 import org.efradev.todolist.viewmodel.ShoppingListsViewModel
-import org.efradev.todolist.data.local.PreferencesRepository
+import org.efradev.todolist.domain.repository.PreferencesRepository
 import org.efradev.todolist.data.local.PreferencesRepositoryImpl
 import org.efradev.todolist.domain.CheckAuthStateUseCase
 import org.efradev.todolist.viewmodel.AuthViewModel
