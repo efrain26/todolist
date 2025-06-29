@@ -7,10 +7,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import org.efradev.todolist.di.initKoin
 import org.efradev.todolist.viewmodel.LoginState
 import org.efradev.todolist.viewmodel.LoginViewModel
-import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
@@ -93,13 +91,3 @@ fun LoginForm(
     }
 }
 
-@Preview
-@Composable
-fun LoginFormPreview() {
-    initKoin()
-    LoginForm(
-        email = "usuario@ejemplo.com",
-        onBack = {},
-        onLoginSuccess = {}
-    )
-}

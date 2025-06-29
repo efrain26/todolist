@@ -27,7 +27,6 @@ import androidx.compose.ui.unit.dp
 import org.efradev.todolist.domain.model.DomainShoppingList
 import org.efradev.todolist.domain.model.DomainShoppingItem
 import org.efradev.todolist.data.model.ShoppingItem
-import org.efradev.todolist.di.initKoin
 import org.efradev.todolist.ui.components.CreateListBottomSheet
 import org.efradev.todolist.viewmodel.CreateListUiState
 import org.efradev.todolist.viewmodel.CreateListViewModel
@@ -35,7 +34,6 @@ import org.efradev.todolist.viewmodel.ProfileViewModel
 import org.efradev.todolist.viewmodel.ShoppingListsUiState
 import org.efradev.todolist.viewmodel.ShoppingListsViewModel
 import org.koin.compose.viewmodel.koinViewModel
-import org.jetbrains.compose.ui.tooling.preview.Preview
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -252,52 +250,4 @@ private fun ShoppingListItem(list: DomainShoppingList) {
         },
         modifier = Modifier.padding(horizontal = 16.dp)
     )
-}
-
-@Preview
-@Composable
-fun ShoppingListsScreenPreview() {
-    initKoin()
-    val mockShoppingLists = listOf(
-        DomainShoppingList(
-            id = "1",
-            name = "Compras de la semana",
-            createdAt = "2025-06-24T10:00:00",
-            userId = "user123",
-            type = "simple",
-            items = listOf(
-                DomainShoppingItem(
-                    name = "Frutas",
-                    status = "pendiente",
-                    type = "simple"
-                )
-            )
-        ),
-        DomainShoppingList(
-            id = "2",
-            name = "Lista de supermercado",
-            createdAt = "2025-06-24T11:00:00",
-            userId = "user123",
-            type = "simple",
-            items = listOf(
-                DomainShoppingItem(
-                    name = "Verduras",
-                    status = "pendiente",
-                    type = "simple"
-                ),
-                DomainShoppingItem(
-                    name = "Leche",
-                    status = "pendiente",
-                    type = "simple"
-                )
-            )
-        )
-    )
-
-    MaterialTheme {
-        ShoppingListsContent(
-            lists = mockShoppingLists,
-            modifier = Modifier.fillMaxSize()
-        )
-    }
 }

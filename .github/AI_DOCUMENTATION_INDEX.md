@@ -32,12 +32,20 @@
 - ✅ Separación de Domain Models vs Data Models
 - ✅ Plan de implementación por fases
 
+### **🎨 [AI_UI_PATTERNS_GUIDE.md](./AI_UI_PATTERNS_GUIDE.md)**
+**Patrones de UI y Preview** - Organización de la capa de presentación y previews.
+- ✅ Patrón de archivos de preview separados
+- ✅ Separación de responsabilidades en UI
+- ✅ Múltiples estados por componente
+- ✅ Template para nuevos componentes
+
 ## 🎯 **Cómo usar esta documentación**
 
 ### **Para IAs nuevas en el proyecto:**
 1. Leer **AI_CODE_COVERAGE_CONTEXT.md** completo
 2. Consultar **AI_TESTING_PATTERNS.md** para patrones
-3. Usar **AI_QUICK_COMMANDS.md** para comandos frecuentes
+3. Revisar **AI_UI_PATTERNS_GUIDE.md** para UI/previews
+4. Usar **AI_QUICK_COMMANDS.md** para comandos frecuentes
 
 ### **Para IAs con contexto previo:**
 1. Consultar **AI_QUICK_COMMANDS.md** directamente
@@ -47,6 +55,7 @@
 1. Verificar comandos en **AI_QUICK_COMMANDS.md**
 2. Consultar troubleshooting en **AI_CODE_COVERAGE_CONTEXT.md**
 3. Revisar anti-patterns en **AI_TESTING_PATTERNS.md**
+4. Verificar patrones UI en **AI_UI_PATTERNS_GUIDE.md**
 
 ## 🔄 **Estado Actual del Sistema**
 
@@ -56,11 +65,13 @@
 - Reportes HTML y XML generándose correctamente
 - Tareas personalizadas disponibles
 - **Clean Architecture implementada completamente** 🏗️
+- **UI Preview Patterns implementados completamente** 🎨
 
 📊 **Coverage actual:** 
 - **Estado:** 45 tests ejecutándose exitosamente ✅
 - **Arquitectura:** Separación limpia entre capas Data → Domain ← Presentation
 - **Tests:** Todos adaptados a modelos de dominio
+- **UI:** Previews organizados con separación de responsabilidades ✅
 
 🎯 **Tests implementados y funcionando:**
 - ✅ CheckAuthStateUseCase (4 tests) - **100% coverage** con modelos de dominio
@@ -105,7 +116,7 @@
 - Se agreguen nuevos patrones de testing
 - Se encuentren nuevos problemas/soluciones
 
-**Última actualización completa:** 29 de Junio, 2025 - **CLEAN ARCHITECTURE MIGRATION COMPLETED** ✅ 
+**Última actualización completa:** 29 de Junio, 2025 - **CLEAN ARCHITECTURE + UI PATTERNS COMPLETED** ✅ 
 
 **🎉 MIGRATION EXITOSA:**
 ✅ **Arquitectura Clean completamente implementada y funcionando**
@@ -113,6 +124,7 @@
 ✅ **Zero violaciones arquitectónicas**
 ✅ **Separación limpia entre capas: Data → Domain ← Presentation**
 ✅ **Coverage mantenido al 100% en Use Cases**
+✅ **UI Preview Patterns implementados completamente**
 
 **📊 Estado final:**
 - **Tests:** 45/45 pasando (100% success rate)
@@ -121,6 +133,7 @@
 - **Use Cases:** Solo modelos de dominio, zero dependencias de Data layer
 - **Mappers:** Conversión automática Data ↔ Domain
 - **Tests:** Completamente adaptados con TestFakes actualizados
+- **UI Previews:** 16 previews en 7 archivos organizados por separación de responsabilidades
 
 ---
 
