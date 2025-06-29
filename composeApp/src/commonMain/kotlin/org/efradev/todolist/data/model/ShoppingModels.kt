@@ -21,3 +21,9 @@ data class ShoppingItem(
     val status: String,
     val type: String
 )
+
+@Serializable
+data class CreateShoppingListRequest(
+    val name: String,
+    val type: String = "simple"
+)

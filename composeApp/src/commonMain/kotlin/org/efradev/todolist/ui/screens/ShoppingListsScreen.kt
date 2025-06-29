@@ -13,8 +13,11 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +27,9 @@ import androidx.compose.ui.unit.dp
 import org.efradev.todolist.data.model.ShoppingList
 import org.efradev.todolist.data.model.ShoppingItem
 import org.efradev.todolist.di.initKoin
+import org.efradev.todolist.ui.components.CreateListBottomSheet
+import org.efradev.todolist.viewmodel.CreateListUiState
+import org.efradev.todolist.viewmodel.CreateListViewModel
 import org.efradev.todolist.viewmodel.ProfileViewModel
 import org.efradev.todolist.viewmodel.ShoppingListsUiState
 import org.efradev.todolist.viewmodel.ShoppingListsViewModel
@@ -37,7 +43,22 @@ fun ShoppingListsScreen(
 ) {
     val viewModel: ShoppingListsViewModel = koinViewModel()
     val profileViewModel: ProfileViewModel = koinViewModel()
+    val createListViewModel: CreateListViewModel = koinViewModel()
     val showMenu = remember { mutableStateOf(false) }
+    var showCreateListBottomSheet by remember { mutableStateOf(false) }
+
+    // Observar el estado de creación de lista
+    LaunchedEffect(createListViewModel.uiState) {
+        when (createListViewModel.uiState) {
+            is CreateListUiState.Success -> {
+                showCreateListBottomSheet = false
+                createListViewModel.resetState()
+                // Recargar la lista de shopping lists
+                viewModel.loadShoppingLists()
+            }
+            else -> { /* No action needed */ }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -87,7 +108,7 @@ fun ShoppingListsScreen(
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { /* TODO: Implement add new list */ },
+                onClick = { showCreateListBottomSheet = true },
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer
             ) {
@@ -121,6 +142,20 @@ fun ShoppingListsScreen(
             is ShoppingListsUiState.Success -> ShoppingListsContent(
                 lists = state.lists,
                 modifier = Modifier.padding(paddingValues)
+            )
+        }
+
+        // Bottom Sheet para crear nueva lista
+        if (showCreateListBottomSheet) {
+            CreateListBottomSheet(
+                uiState = createListViewModel.uiState,
+                onDismiss = { 
+                    showCreateListBottomSheet = false
+                    createListViewModel.resetState()
+                },
+                onCreateList = { name, type ->
+                    createListViewModel.createList(name, type)
+                }
             )
         }
     }
