@@ -7,7 +7,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.kotlinxSerialization)
-
+    alias(libs.plugins.kover)
 }
 
 kotlin {
@@ -58,6 +58,13 @@ kotlin {
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.koin.test)
+        }
+        
+        androidUnitTest.dependencies {
+            implementation(libs.junit)
+            implementation(libs.mockk)
         }
     }
 }
@@ -91,4 +98,55 @@ android {
 
 dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
+}
+
+// Tareas personalizadas para facilitar el trabajo con code coverage
+tasks.register("testWithCoverage") {
+    group = "verification"
+    description = "Ejecuta tests de Android y genera reportes de coverage"
+    dependsOn("testDebugUnitTest", "testReleaseUnitTest", "koverHtmlReport", "koverXmlReport")
+}
+
+tasks.register("coverageReport") {
+    group = "reporting"
+    description = "Genera solo los reportes de coverage sin ejecutar tests"
+    dependsOn("koverHtmlReport", "koverXmlReport")
+}
+
+tasks.register("testAndroidWithCoverage") {
+    group = "verification"
+    description = "Ejecuta solo tests de Android y genera reportes de coverage"
+    dependsOn("testDebugUnitTest", "koverHtmlReport", "koverXmlReport")
+}
+
+// Configuración de Kover para Code Coverage
+kover {
+    reports {
+        total {
+            html {
+                onCheck = true
+            }
+            xml {
+                onCheck = true
+            }
+        }
+    }
+    
+    currentProject {
+        sources {
+            excludedSourceSets.addAll("iosMain", "iosTest")
+        }
+        
+        instrumentation {
+            // Excluir clases generadas automáticamente
+            excludedClasses.addAll(
+                "*.BuildConfig",
+                "*.*\$\$serializer.*",
+                "*.di.*", // Archivos de inyección de dependencias
+                "*.*Test*.*",
+                "android.*",
+                "androidx.*"
+            )
+        }
+    }
 }
