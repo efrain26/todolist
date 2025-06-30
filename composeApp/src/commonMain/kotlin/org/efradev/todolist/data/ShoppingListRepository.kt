@@ -51,4 +51,17 @@ class ShoppingListRepositoryImpl(
             Result.failure(e)
         }
     }
+
+    override suspend fun getShoppingListDetails(listId: String): Result<DomainShoppingList> {
+        return try {
+            val token = authLocalStorage.getAccessToken()
+            val response = client.get("$BASE_URL/api/v1/shopping/lists/$listId") {
+                header("Authorization", "Bearer $token")
+            }
+            val shoppingList = response.body<ShoppingList>()
+            Result.success(shoppingList.toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }

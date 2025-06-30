@@ -1,0 +1,416 @@
+package org.efradev.todolist.ui.screens
+
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
+import org.efradev.todolist.domain.model.DomainShoppingList
+import org.efradev.todolist.domain.model.DomainShoppingItem
+import org.efradev.todolist.viewmodel.ShoppingListDetailsUiState
+import org.efradev.todolist.viewmodel.ShoppingListDetailsViewModel
+import org.koin.compose.viewmodel.koinViewModel
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ShoppingListDetailsScreen(
+    listId: String,
+    onBackClick: () -> Unit = {},
+    modifier: Modifier = Modifier
+) {
+    val viewModel: ShoppingListDetailsViewModel = koinViewModel<ShoppingListDetailsViewModel>()
+    
+    // Load list details when the screen is first composed
+    LaunchedEffect(listId) {
+        viewModel.loadListDetails(listId)
+    }
+
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("") }, // Empty title to match Figma design
+                navigationIcon = {
+                    IconButton(onClick = onBackClick) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { /* TODO: Share functionality */ }) {
+                        Icon(
+                            imageVector = Icons.Default.Share,
+                            contentDescription = "Share"
+                        )
+                    }
+                    IconButton(onClick = { /* TODO: More options */ }) {
+                        Icon(
+                            imageVector = Icons.Default.MoreVert,
+                            contentDescription = "More options"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
+            )
+        },
+        modifier = modifier
+    ) { paddingValues ->
+        when (val state = viewModel.uiState) {
+            is ShoppingListDetailsUiState.Loading -> {
+                LoadingContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                )
+            }
+            is ShoppingListDetailsUiState.Success -> {
+                ListDetailsContent(
+                    list = state.list,
+                    onRefresh = { viewModel.refresh(listId) },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                )
+            }
+            is ShoppingListDetailsUiState.Error -> {
+                ErrorContent(
+                    message = state.message,
+                    onRetry = { viewModel.loadListDetails(listId) },
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+internal fun LoadingContent(
+    modifier: Modifier = Modifier
+) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
+        CircularProgressIndicator()
+    }
+}
+
+@Composable
+internal fun ErrorContent(
+    message: String,
+    onRetry: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text(
+            text = message,
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.error,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(16.dp)
+        )
+        Button(
+            onClick = onRetry,
+            modifier = Modifier.padding(top = 16.dp)
+        ) {
+            Text("Retry")
+        }
+    }
+}
+
+@Composable
+internal fun ListDetailsContent(
+    list: DomainShoppingList,
+    onRefresh: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = PaddingValues(bottom = 80.dp) // Space for potential FAB
+    ) {
+        // Header section with image and title
+        item {
+            HeaderSection(
+                list = list,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+
+        // Description section
+        item {
+            DescriptionSection(
+                list = list,
+                modifier = Modifier.padding(horizontal = 16.dp)
+            )
+        }
+
+        // Items section
+        item {
+            ItemsSectionHeader(
+                itemCount = list.items.size,
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+
+        // List items
+        items(list.items) { item ->
+            ListItemCard(
+                item = item,
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+            )
+        }
+
+        // Empty state for items if needed
+        if (list.items.isEmpty()) {
+            item {
+                EmptyItemsState(
+                    modifier = Modifier.padding(32.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+internal fun HeaderSection(
+    list: DomainShoppingList,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        // Image placeholder (matches Figma design)
+        Surface(
+            modifier = Modifier
+                .size(136.dp)
+                .clip(RoundedCornerShape(28.dp)),
+            color = MaterialTheme.colorScheme.surfaceVariant
+        ) {
+            // TODO: Add actual image when available
+        }
+
+        // Text content
+        Column(
+            modifier = Modifier.weight(1f),
+            verticalArrangement = Arrangement.spacedBy(24.dp)
+        ) {
+            // Title and supporting text
+            Column(
+                verticalArrangement = Arrangement.spacedBy(4.dp)
+            ) {
+                Text(
+                    text = list.name,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Normal
+                )
+                Text(
+                    text = "Created: ${list.createdAt}",
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+
+            // Download/Action button (matches Figma design)
+            Button(
+                onClick = { /* TODO: Download functionality */ },
+                modifier = Modifier.height(40.dp)
+            ) {
+                Text("Download")
+            }
+        }
+    }
+}
+
+@Composable
+internal fun DescriptionSection(
+    list: DomainShoppingList,
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        Text(
+            text = "PUBLISHED DATE",
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+        Text(
+            text = "This is a detailed description of the ${list.name} list. " +
+                    "It contains ${list.items.size} items and was created on ${list.createdAt}. " +
+                    "You can manage and organize your items here.",
+            style = MaterialTheme.typography.bodyMedium,
+            lineHeight = MaterialTheme.typography.bodyMedium.lineHeight
+        )
+    }
+}
+
+@Composable
+internal fun ItemsSectionHeader(
+    itemCount: Int,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            text = "Items ($itemCount)",
+            style = MaterialTheme.typography.headlineSmall,
+            fontWeight = FontWeight.Normal
+        )
+        IconButton(
+            onClick = { /* TODO: Navigate to all items */ }
+        ) {
+            Icon(
+                imageVector = Icons.Default.PlayArrow,
+                contentDescription = "View all items"
+            )
+        }
+    }
+}
+
+@Composable
+internal fun ListItemCard(
+    item: DomainShoppingItem,
+    modifier: Modifier = Modifier
+) {
+    Card(
+        modifier = modifier,
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surface
+        )
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            // Item image placeholder
+            Surface(
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(RoundedCornerShape(16.dp)),
+                color = MaterialTheme.colorScheme.surfaceVariant
+            ) {
+                // TODO: Add actual item image
+            }
+
+            // Item content
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                // Title and description
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Text(
+                        text = item.name,
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                    Text(
+                        text = "Status: ${item.status}",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+                // Bottom row with info and action
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Item info
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.AddCircle,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp)
+                        )
+                        Text(
+                            text = "Today",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "•",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                        Text(
+                            text = "Type: ${item.type}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
+                    }
+
+                    // Action icon
+                    Icon(
+                        imageVector = Icons.Default.PlayArrow,
+                        contentDescription = "Item action",
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+internal fun EmptyItemsState(
+    modifier: Modifier = Modifier
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "No items yet",
+            style = MaterialTheme.typography.headlineSmall,
+            textAlign = TextAlign.Center
+        )
+        Text(
+            text = "Add your first item to get started",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+    }
+}

@@ -14,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import org.efradev.todolist.di.initKoin
 import org.efradev.todolist.ui.screens.ShoppingListsScreen
+import org.efradev.todolist.ui.screens.ShoppingListDetailsScreen
 import org.efradev.todolist.ui.screens.EmailForm
 import org.efradev.todolist.ui.screens.LoginForm
 import org.efradev.todolist.ui.screens.RegisterForm
@@ -28,6 +29,7 @@ fun App() {
     MaterialTheme {
         var screen by remember { mutableStateOf("splash") } // Cambiado a "splash" como estado inicial
         var email by remember { mutableStateOf("") }
+        var selectedListId by remember { mutableStateOf("") }
         val viewModel: EmailCheckViewModel = koinViewModel<EmailCheckViewModel>()
         val state = viewModel.state
 
@@ -65,7 +67,18 @@ fun App() {
                     onLoginSuccess = { screen = "shopping_lists" }
                 )
 
-                "shopping_lists" -> ShoppingListsScreen()
+                "shopping_lists" -> ShoppingListsScreen(
+                    onLogout = { screen = "email" },
+                    onListClick = { listId ->
+                        selectedListId = listId
+                        screen = "list_details"
+                    }
+                )
+
+                "list_details" -> ShoppingListDetailsScreen(
+                    listId = selectedListId,
+                    onBackClick = { screen = "shopping_lists" }
+                )
             }
 
             // Navegación automática según el estado

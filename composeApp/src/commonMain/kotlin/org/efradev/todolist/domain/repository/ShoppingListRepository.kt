@@ -12,4 +12,5 @@ import org.efradev.todolist.domain.model.DomainShoppingList
 interface ShoppingListRepository {
     suspend fun getShoppingLists(): Result<List<DomainShoppingList>>
     suspend fun createList(name: String, type: String = "simple"): Result<DomainShoppingList>
+    suspend fun getShoppingListDetails(listId: String): Result<DomainShoppingList>
 }

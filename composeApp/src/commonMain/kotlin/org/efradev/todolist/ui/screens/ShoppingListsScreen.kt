@@ -3,6 +3,7 @@ package org.efradev.todolist.ui.screens
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.clickable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.AddCircle
@@ -38,7 +39,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShoppingListsScreen(
-    onLogout: () -> Unit = {}
+    onLogout: () -> Unit = {},
+    onListClick: (String) -> Unit = {}
 ) {
     val viewModel: ShoppingListsViewModel = koinViewModel()
     val profileViewModel: ProfileViewModel = koinViewModel()
@@ -140,6 +142,7 @@ fun ShoppingListsScreen(
             is ShoppingListsUiState.Error -> ErrorState(state.message)
             is ShoppingListsUiState.Success -> ShoppingListsContent(
                 lists = state.lists,
+                onListClick = onListClick,
                 modifier = Modifier.padding(paddingValues)
             )
         }
@@ -200,6 +203,7 @@ private fun ErrorState(message: String) {
 @Composable
 private fun ShoppingListsContent(
     lists: List<DomainShoppingList>,
+    onListClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     LazyColumn(
@@ -207,14 +211,20 @@ private fun ShoppingListsContent(
         contentPadding = PaddingValues(vertical = 16.dp)
     ) {
         items(lists) { list ->
-            ShoppingListItem(list = list)
-            Divider()
+            ShoppingListItem(
+                list = list,
+                onClick = { onListClick(list.id) }
+            )
+            HorizontalDivider()
         }
     }
 }
 
 @Composable
-private fun ShoppingListItem(list: DomainShoppingList) {
+private fun ShoppingListItem(
+    list: DomainShoppingList,
+    onClick: () -> Unit
+) {
     ListItem(
         headlineContent = { 
             Text(
@@ -248,6 +258,8 @@ private fun ShoppingListItem(list: DomainShoppingList) {
                 )
             }
         },
-        modifier = Modifier.padding(horizontal = 16.dp)
+        modifier = Modifier
+            .padding(horizontal = 16.dp)
+            .clickable { onClick() }
     )
 }
