@@ -189,3 +189,33 @@ fun ListDetailsContentEmptyPreview() {
         )
     }
 }
+
+@Preview
+@Composable
+fun BottomActionButtonsPreview() {
+    MaterialTheme {
+        BottomActionButtons()
+    }
+}
+
+@Preview
+@Composable
+fun ShoppingListDetailsScreenWithBottomButtonsPreview() {
+    MaterialTheme {
+        Surface {
+            Column {
+                // Simulate the content area
+                ListDetailsContent(
+                    list = sampleList,
+                    onRefresh = {},
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                )
+                
+                // Bottom buttons
+                BottomActionButtons()
+            }
+        }
+    }
+}

@@ -10,6 +10,8 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,6 +35,7 @@ fun ShoppingListDetailsScreen(
     modifier: Modifier = Modifier
 ) {
     val viewModel: ShoppingListDetailsViewModel = koinViewModel<ShoppingListDetailsViewModel>()
+    var showDropdownMenu by remember { mutableStateOf(false) }
     
     // Load list details when the screen is first composed
     LaunchedEffect(listId) {
@@ -58,17 +61,43 @@ fun ShoppingListDetailsScreen(
                             contentDescription = "Share"
                         )
                     }
-                    IconButton(onClick = { /* TODO: More options */ }) {
-                        Icon(
-                            imageVector = Icons.Default.MoreVert,
-                            contentDescription = "More options"
-                        )
+                    
+                    // More options with dropdown menu
+                    Box {
+                        IconButton(onClick = { showDropdownMenu = true }) {
+                            Icon(
+                                imageVector = Icons.Default.MoreVert,
+                                contentDescription = "More options"
+                            )
+                        }
+                        
+                        DropdownMenu(
+                            expanded = showDropdownMenu,
+                            onDismissRequest = { showDropdownMenu = false }
+                        ) {
+                            DropdownMenuItem(
+                                text = { Text("Eliminar") },
+                                onClick = {
+                                    showDropdownMenu = false
+                                    // TODO: Delete functionality
+                                },
+                                leadingIcon = {
+                                    Icon(
+                                        imageVector = Icons.Default.Delete,
+                                        contentDescription = "Delete"
+                                    )
+                                }
+                            )
+                        }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surface
                 )
             )
+        },
+        bottomBar = {
+            BottomActionButtons()
         },
         modifier = modifier
     ) { paddingValues ->
@@ -147,48 +176,45 @@ internal fun ListDetailsContent(
     onRefresh: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    LazyColumn(
-        modifier = modifier,
-        contentPadding = PaddingValues(bottom = 80.dp) // Space for potential FAB
+    Column(
+        modifier = modifier
     ) {
-        // Header section with image and title
-        item {
-            HeaderSection(
-                list = list,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-
-        // Description section
-        item {
-            DescriptionSection(
-                list = list,
-                modifier = Modifier.padding(horizontal = 16.dp)
-            )
-        }
-
-        // Items section
-        item {
-            ItemsSectionHeader(
-                itemCount = list.items.size,
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-
-        // List items
-        items(list.items) { item ->
-            ListItemCard(
-                item = item,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-        }
-
-        // Empty state for items if needed
-        if (list.items.isEmpty()) {
-            item {
-                EmptyItemsState(
-                    modifier = Modifier.padding(32.dp)
+        // Fixed header sections
+        HeaderSection(
+            list = list,
+            modifier = Modifier.padding(16.dp)
+        )
+        
+        DescriptionSection(
+            list = list,
+            modifier = Modifier.padding(horizontal = 16.dp)
+        )
+        
+        ItemsSectionHeader(
+            itemCount = list.items.size,
+            modifier = Modifier.padding(16.dp)
+        )
+        
+        // Scrollable items list
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            // List items
+            items(list.items) { item ->
+                ListItemCard(
+                    item = item
                 )
+            }
+
+            // Empty state for items if needed
+            if (list.items.isEmpty()) {
+                item {
+                    EmptyItemsState(
+                        modifier = Modifier.padding(16.dp)
+                    )
+                }
             }
         }
     }
@@ -412,5 +438,57 @@ internal fun EmptyItemsState(
             textAlign = TextAlign.Center,
             modifier = Modifier.padding(top = 8.dp)
         )
+    }
+}
+
+/**
+ * Bottom action buttons that remain fixed at the bottom
+ * Matches the Figma design with two buttons
+ */
+@Composable
+internal fun BottomActionButtons(
+    modifier: Modifier = Modifier
+) {
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        color = MaterialTheme.colorScheme.surface,
+        shadowElevation = 8.dp
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            // Primary action button (Edit)
+            Button(
+                onClick = { /* TODO: Edit functionality */ },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.Edit,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Editar Lista")
+            }
+            
+            // Secondary action button (Add Item)
+            OutlinedButton(
+                onClick = { /* TODO: Add item functionality */ },
+                modifier = Modifier.weight(1f),
+                shape = RoundedCornerShape(28.dp)
+            ) {
+                Icon(
+                    imageVector = Icons.Default.AddCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Agregar Item")
+            }
+        }
     }
 }

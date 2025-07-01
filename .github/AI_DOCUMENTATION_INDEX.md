@@ -4,6 +4,15 @@
 
 ## Importante para todas las IA's leer este documentacion antes de realizar cualquier cambio, y solo actualizar este documento si es necesario agregar documentacion importante como arquitectura, buenas practicas, patrones de diseño, etc. (No usar este archivo como un CHANGELOG)
 
+### ⚠️ **IMPORTANTE: NO CREAR ARCHIVOS DE CAMBIOS**
+**Las IAs NO deben crear archivos tipo "CAMBIOS_*.md" o "RESUMEN_*.md"** para documentar cambios realizados. Solo crear archivos nuevos cuando sea:
+- Nuevos patrones de diseño o arquitectura
+- Nuevas formas de trabajo (way of working)
+- Documentación técnica permanente
+- Guías que serán reutilizadas por futuras IAs
+
+Los cambios realizados deben ser **auto-documentados en el código** y **explicados en la respuesta directa** al usuario.
+
 ## 📚 **Archivos de Documentación AI**
 
 ### **🚀 [AI_QUICK_COMMANDS.md](./AI_QUICK_COMMANDS.md)**
