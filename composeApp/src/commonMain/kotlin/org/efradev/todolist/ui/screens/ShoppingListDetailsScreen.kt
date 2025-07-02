@@ -32,15 +32,24 @@ import org.koin.compose.viewmodel.koinViewModel
 fun ShoppingListDetailsScreen(
     listId: String,
     onBackClick: () -> Unit = {},
+    onListDeleted: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     val viewModel: ShoppingListDetailsViewModel = koinViewModel<ShoppingListDetailsViewModel>()
     var showDropdownMenu by remember { mutableStateOf(false) }
     var showAddItemBottomSheet by remember { mutableStateOf(false) }
+    var showDeleteConfirmDialog by remember { mutableStateOf(false) }
     
     // Load list details when the screen is first composed
     LaunchedEffect(listId) {
         viewModel.loadListDetails(listId)
+    }
+
+    // Handle navigation after deletion
+    LaunchedEffect(viewModel.uiState) {
+        if (viewModel.uiState is ShoppingListDetailsUiState.Deleted) {
+            onListDeleted()
+        }
     }
 
     Scaffold(
@@ -80,7 +89,7 @@ fun ShoppingListDetailsScreen(
                                 text = { Text("Eliminar") },
                                 onClick = {
                                     showDropdownMenu = false
-                                    // TODO: Delete functionality
+                                    showDeleteConfirmDialog = true
                                 },
                                 leadingIcon = {
                                     Icon(
@@ -130,6 +139,15 @@ fun ShoppingListDetailsScreen(
                         .padding(paddingValues)
                 )
             }
+            is ShoppingListDetailsUiState.Deleted -> {
+                // This state is handled in LaunchedEffect for navigation
+                // Show loading while navigating
+                LoadingContent(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                )
+            }
         }
     }
     
@@ -147,6 +165,20 @@ fun ShoppingListDetailsScreen(
         },
         listType = currentListType
     )
+
+    // Delete confirmation dialog
+    if (showDeleteConfirmDialog) {
+        DeleteConfirmationDialog(
+            onConfirm = {
+                showDeleteConfirmDialog = false
+                viewModel.deleteList(listId)
+            },
+            onDismiss = {
+                showDeleteConfirmDialog = false
+            },
+            isDeleting = viewModel.isDeletingList
+        )
+    }
 }
 
 @Composable
@@ -430,4 +462,63 @@ internal fun BottomActionButtons(
             }
         }
     }
+}
+
+/**
+ * Dialog for confirming list deletion
+ * Follows Material Design guidelines for destructive actions
+ */
+@Composable
+internal fun DeleteConfirmationDialog(
+    onConfirm: () -> Unit,
+    onDismiss: () -> Unit,
+    isDeleting: Boolean,
+    modifier: Modifier = Modifier
+) {
+    AlertDialog(
+        onDismissRequest = if (isDeleting) { {} } else onDismiss,
+        title = {
+            Text(
+                text = "Eliminar lista",
+                style = MaterialTheme.typography.headlineSmall
+            )
+        },
+        text = {
+            Text(
+                text = "¿Estás seguro de que quieres eliminar esta lista? Esta acción no se puede deshacer.",
+                style = MaterialTheme.typography.bodyMedium
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = onConfirm,
+                enabled = !isDeleting,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.error
+                )
+            ) {
+                if (isDeleting) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(16.dp),
+                        strokeWidth = 2.dp,
+                        color = MaterialTheme.colorScheme.onError
+                    )
+                } else {
+                    Text(
+                        text = "Eliminar",
+                        color = MaterialTheme.colorScheme.onError
+                    )
+                }
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = onDismiss,
+                enabled = !isDeleting
+            ) {
+                Text("Cancelar")
+            }
+        },
+        modifier = modifier
+    )
 }

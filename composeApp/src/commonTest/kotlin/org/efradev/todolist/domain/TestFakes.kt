@@ -5,6 +5,7 @@ import org.efradev.todolist.domain.repository.UserRepository
 import org.efradev.todolist.domain.repository.PreferencesRepository
 import org.efradev.todolist.domain.repository.UserCheckResult
 import org.efradev.todolist.domain.model.DomainShoppingList
+import org.efradev.todolist.domain.model.DomainShoppingItem
 import org.efradev.todolist.domain.model.DomainAuthData
 import org.efradev.todolist.domain.model.DomainUserRegistration
 import org.efradev.todolist.domain.model.DomainRegistrationResult
@@ -81,6 +82,11 @@ class FakeShoppingListRepositoryForTests : ShoppingListRepository {
         lastAddItemListId = listId
         lastAddItemRequest = item
         return nextAddItemResult
+    }
+
+    override suspend fun deleteList(listId: String): Result<Unit> {
+        if (shouldThrowException) throw RuntimeException("Test exception")
+        return Result.success(Unit)
     }
 }
 
@@ -216,6 +222,34 @@ class FakeShoppingListRepository : ShoppingListRepository {
     }
 
     override suspend fun addItemToList(listId: String, item: DomainAddItemRequest): Result<DomainShoppingList> {
-        return Result.success(DomainShoppingList("", "", "", "", "", emptyList()))
+        lastRequestedListId = listId
+        
+        throwOnGetShoppingListDetails?.let { throw it }
+        
+        // Return a default successful result for addItemToList
+        return Result.success(
+            DomainShoppingList(
+                id = listId,
+                name = "Test List",
+                createdAt = "2023-06-01T10:00:00Z",
+                userId = "user-123",
+                type = "simple",
+                items = listOf(
+                    DomainShoppingItem(
+                        name = item.name,
+                        status = "pendiente",
+                        type = item.listType
+                    )
+                )
+            )
+        )
+    }
+
+    override suspend fun deleteList(listId: String): Result<Unit> {
+        lastRequestedListId = listId
+        
+        throwOnGetShoppingListDetails?.let { throw it }
+        
+        return Result.success(Unit)
     }
 }

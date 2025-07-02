@@ -16,10 +16,12 @@ class GetShoppingListDetailsUseCaseTest {
     fun `invoke with valid list ID returns success`() = runTest {
         // Arrange
         val listId = "test-list-id"
+        val originalDate = "2023-06-01T10:00:00Z"
+        val expectedFormattedDate = "1 de junio, 2023" // DateFormatter.formatToUserFriendly result
         val expectedList = DomainShoppingList(
             id = listId,
             name = "Test List",
-            createdAt = "2023-06-01T10:00:00Z",
+            createdAt = expectedFormattedDate, // Use formatted date in expected result
             userId = "user-123",
             type = "simple",
             items = listOf(
@@ -30,7 +32,10 @@ class GetShoppingListDetailsUseCaseTest {
                 )
             )
         )
-        fakeRepository.setGetShoppingListDetailsResult(Result.success(expectedList))
+        
+        // Set up fake repository to return list with original date
+        val repositoryList = expectedList.copy(createdAt = originalDate)
+        fakeRepository.setGetShoppingListDetailsResult(Result.success(repositoryList))
 
         // Act
         val result = useCase(listId)
@@ -127,6 +132,8 @@ class GetShoppingListDetailsUseCaseTest {
     fun `invoke with list containing multiple items returns complete list`() = runTest {
         // Arrange
         val listId = "multi-item-list"
+        val originalDate = "2023-06-01T10:00:00Z"
+        val expectedFormattedDate = "1 de junio, 2023"
         val items = listOf(
             DomainShoppingItem(name = "Item 1", status = "pendiente", type = "simple"),
             DomainShoppingItem(name = "Item 2", status = "completado", type = "simple"),
@@ -135,12 +142,15 @@ class GetShoppingListDetailsUseCaseTest {
         val expectedList = DomainShoppingList(
             id = listId,
             name = "Multi Item List",
-            createdAt = "2023-06-01T10:00:00Z",
+            createdAt = expectedFormattedDate,
             userId = "user-123",
             type = "simple",
             items = items
         )
-        fakeRepository.setGetShoppingListDetailsResult(Result.success(expectedList))
+        
+        // Set up repository to return list with original date
+        val repositoryList = expectedList.copy(createdAt = originalDate)
+        fakeRepository.setGetShoppingListDetailsResult(Result.success(repositoryList))
 
         // Act
         val result = useCase(listId)
@@ -152,5 +162,6 @@ class GetShoppingListDetailsUseCaseTest {
         assertEquals("Item 1", actualList.items[0].name)
         assertEquals("Item 2", actualList.items[1].name)
         assertEquals("Item 3", actualList.items[2].name)
+        assertEquals(expectedFormattedDate, actualList.createdAt) // Check formatted date
     }
 }

@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.efradev.todolist.domain.GetShoppingListDetailsUseCase
 import org.efradev.todolist.domain.usecase.AddItemToListUseCase
+import org.efradev.todolist.domain.usecase.DeleteShoppingListUseCase
 import org.efradev.todolist.domain.model.DomainShoppingList
 
 /**
@@ -20,6 +21,7 @@ sealed class ShoppingListDetailsUiState {
     data object Loading : ShoppingListDetailsUiState()
     data class Success(val list: DomainShoppingList) : ShoppingListDetailsUiState()
     data class Error(val message: String) : ShoppingListDetailsUiState()
+    data object Deleted : ShoppingListDetailsUiState()
 }
 
 /**
@@ -30,13 +32,17 @@ sealed class ShoppingListDetailsUiState {
  */
 class ShoppingListDetailsViewModel(
     private val getShoppingListDetailsUseCase: GetShoppingListDetailsUseCase,
-    private val addItemToListUseCase: AddItemToListUseCase
+    private val addItemToListUseCase: AddItemToListUseCase,
+    private val deleteShoppingListUseCase: DeleteShoppingListUseCase
 ) : ViewModel() {
 
     var uiState by mutableStateOf<ShoppingListDetailsUiState>(ShoppingListDetailsUiState.Loading)
         private set
     
     var isAddingItem by mutableStateOf(false)
+        private set
+
+    var isDeletingList by mutableStateOf(false)
         private set
 
     /**
@@ -86,6 +92,29 @@ class ShoppingListDetailsViewModel(
                     // Could be enhanced with a snackbar or toast notification
                     uiState = ShoppingListDetailsUiState.Error(
                         error.message ?: "Failed to add item"
+                    )
+                }
+        }
+    }
+
+    /**
+     * Delete the current shopping list
+     * 
+     * @param listId The ID of the list to delete
+     */
+    fun deleteList(listId: String) {
+        viewModelScope.launch {
+            isDeletingList = true
+            
+            deleteShoppingListUseCase(listId)
+                .onSuccess {
+                    isDeletingList = false
+                    uiState = ShoppingListDetailsUiState.Deleted
+                }
+                .onFailure { error ->
+                    isDeletingList = false
+                    uiState = ShoppingListDetailsUiState.Error(
+                        error.message ?: "Failed to delete list"
                     )
                 }
         }

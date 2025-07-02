@@ -241,4 +241,11 @@ class FakeShoppingListRepositoryForAddItem : ShoppingListRepository {
         lastAddItemRequest = item
         return nextAddItemResult
     }
+
+    override suspend fun deleteList(listId: String): Result<Unit> {
+        if (shouldThrowException) {
+            throw RuntimeException("Test exception")
+        }
+        return Result.success(Unit)
+    }
 }

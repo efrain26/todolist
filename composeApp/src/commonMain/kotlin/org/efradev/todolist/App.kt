@@ -77,7 +77,8 @@ fun App() {
 
                 "list_details" -> ShoppingListDetailsScreen(
                     listId = selectedListId,
-                    onBackClick = { screen = "shopping_lists" }
+                    onBackClick = { screen = "shopping_lists" },
+                    onListDeleted = { screen = "shopping_lists" }
                 )
             }
 

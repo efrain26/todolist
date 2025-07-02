@@ -4,6 +4,7 @@ import org.efradev.todolist.data.model.ShoppingList
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.get
+import io.ktor.client.request.delete
 import io.ktor.client.request.post
 import io.ktor.client.request.header
 import io.ktor.client.request.setBody
@@ -78,6 +79,18 @@ class ShoppingListRepositoryImpl(
             }
             val shoppingList = response.body<ShoppingList>()
             Result.success(shoppingList.toDomain())
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    override suspend fun deleteList(listId: String): Result<Unit> {
+        return try {
+            val token = authLocalStorage.getAccessToken()
+            client.delete("$BASE_URL/api/v1/shopping/lists/$listId") {
+                header("Authorization", "Bearer $token")
+            }
+            Result.success(Unit)
         } catch (e: Exception) {
             Result.failure(e)
         }

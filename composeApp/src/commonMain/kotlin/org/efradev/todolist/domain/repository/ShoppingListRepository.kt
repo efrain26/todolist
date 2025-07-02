@@ -15,4 +15,5 @@ interface ShoppingListRepository {
     suspend fun createList(name: String, type: String = "simple"): Result<DomainShoppingList>
     suspend fun getShoppingListDetails(listId: String): Result<DomainShoppingList>
     suspend fun addItemToList(listId: String, item: DomainAddItemRequest): Result<DomainShoppingList>
+    suspend fun deleteList(listId: String): Result<Unit>
 }

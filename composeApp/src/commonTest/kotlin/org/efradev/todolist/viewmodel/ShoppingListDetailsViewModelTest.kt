@@ -8,6 +8,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.efradev.todolist.domain.GetShoppingListDetailsUseCase
 import org.efradev.todolist.domain.usecase.AddItemToListUseCase
+import org.efradev.todolist.domain.usecase.DeleteShoppingListUseCase
 import org.efradev.todolist.domain.FakeShoppingListRepository
 import org.efradev.todolist.domain.model.DomainShoppingList
 import org.efradev.todolist.domain.model.DomainShoppingItem
@@ -23,6 +24,7 @@ class ShoppingListDetailsViewModelTest {
     private lateinit var fakeRepository: FakeShoppingListRepository
     private lateinit var getDetailsUseCase: GetShoppingListDetailsUseCase
     private lateinit var addItemUseCase: AddItemToListUseCase
+    private lateinit var deleteListUseCase: DeleteShoppingListUseCase
     private lateinit var viewModel: ShoppingListDetailsViewModel
     private val testDispatcher = UnconfinedTestDispatcher()
 
@@ -32,7 +34,8 @@ class ShoppingListDetailsViewModelTest {
         fakeRepository = FakeShoppingListRepository()
         getDetailsUseCase = GetShoppingListDetailsUseCase(fakeRepository)
         addItemUseCase = AddItemToListUseCase(fakeRepository)
-        viewModel = ShoppingListDetailsViewModel(getDetailsUseCase, addItemUseCase)
+        deleteListUseCase = DeleteShoppingListUseCase(fakeRepository)
+        viewModel = ShoppingListDetailsViewModel(getDetailsUseCase, addItemUseCase, deleteListUseCase)
     }
 
     @AfterTest
@@ -53,7 +56,7 @@ class ShoppingListDetailsViewModelTest {
         val expectedList = DomainShoppingList(
             id = listId,
             name = "Test List",
-            createdAt = "2023-06-01T10:00:00Z",
+            createdAt = "1 de junio, 2023",
             userId = "user-123",
             type = "simple",
             items = listOf(
@@ -113,7 +116,7 @@ class ShoppingListDetailsViewModelTest {
         val expectedList = DomainShoppingList(
             id = listId,
             name = "Test List",
-            createdAt = "2023-06-01T10:00:00Z",
+            createdAt = "1 de junio, 2023",
             userId = "user-123",
             type = "simple",
             items = emptyList()
@@ -140,7 +143,7 @@ class ShoppingListDetailsViewModelTest {
         val expectedList = DomainShoppingList(
             id = listId,
             name = "Refresh Test List",
-            createdAt = "2023-06-01T10:00:00Z",
+            createdAt = "1 de junio, 2023",
             userId = "user-123",
             type = "simple",
             items = emptyList()
@@ -164,7 +167,7 @@ class ShoppingListDetailsViewModelTest {
         val expectedList = DomainShoppingList(
             id = listId,
             name = "Test List",
-            createdAt = "2023-06-01T10:00:00Z",
+            createdAt = "1 de junio, 2023",
             userId = "user-123",
             type = "simple",
             items = emptyList()
@@ -209,7 +212,7 @@ class ShoppingListDetailsViewModelTest {
         val expectedList = DomainShoppingList(
             id = listId,
             name = "Multi Item List",
-            createdAt = "2023-06-01T10:00:00Z",
+            createdAt = "1 de junio, 2023",
             userId = "user-123",
             type = "simple",
             items = items
@@ -227,5 +230,52 @@ class ShoppingListDetailsViewModelTest {
         assertEquals("Item 1", state.list.items[0].name)
         assertEquals("completado", state.list.items[1].status)
         assertEquals("tareas", state.list.items[2].type)
+    }
+
+    @Test
+    fun `deleteList with valid ID sets state to Deleted`() = runTest {
+        // Arrange
+        val listId = "test-list-id"
+
+        // Act
+        viewModel.deleteList(listId)
+
+        // Assert
+        val state = viewModel.uiState
+        assertTrue(state is ShoppingListDetailsUiState.Deleted)
+        assertEquals(listId, fakeRepository.lastRequestedListId)
+    }
+
+    @Test
+    fun `deleteList with repository failure sets state to Error`() = runTest {
+        // Arrange
+        val listId = "test-list-id"
+        val errorMessage = "Network error"
+        fakeRepository.throwOnGetShoppingListDetails = RuntimeException(errorMessage)
+
+        // Act
+        viewModel.deleteList(listId)
+
+        // Assert
+        val state = viewModel.uiState
+        assertTrue(state is ShoppingListDetailsUiState.Error)
+        assertEquals(errorMessage, state.message)
+    }
+
+    @Test
+    fun `deleteList sets isDeletingList flag correctly`() = runTest {
+        // Arrange
+        val listId = "test-list-id"
+        
+        // Initial state
+        assertEquals(false, viewModel.isDeletingList)
+
+        // Act
+        viewModel.deleteList(listId)
+
+        // Assert
+        // Since we're using UnconfinedTestDispatcher, the operation completes immediately
+        assertEquals(false, viewModel.isDeletingList)
+        assertTrue(viewModel.uiState is ShoppingListDetailsUiState.Deleted)
     }
 }
