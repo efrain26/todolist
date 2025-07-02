@@ -7,6 +7,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import org.efradev.todolist.domain.GetShoppingListDetailsUseCase
+import org.efradev.todolist.domain.usecase.AddItemToListUseCase
 import org.efradev.todolist.domain.FakeShoppingListRepository
 import org.efradev.todolist.domain.model.DomainShoppingList
 import org.efradev.todolist.domain.model.DomainShoppingItem
@@ -20,7 +21,8 @@ import kotlin.test.AfterTest
 class ShoppingListDetailsViewModelTest {
 
     private lateinit var fakeRepository: FakeShoppingListRepository
-    private lateinit var useCase: GetShoppingListDetailsUseCase
+    private lateinit var getDetailsUseCase: GetShoppingListDetailsUseCase
+    private lateinit var addItemUseCase: AddItemToListUseCase
     private lateinit var viewModel: ShoppingListDetailsViewModel
     private val testDispatcher = UnconfinedTestDispatcher()
 
@@ -28,8 +30,9 @@ class ShoppingListDetailsViewModelTest {
     fun setup() {
         Dispatchers.setMain(testDispatcher)
         fakeRepository = FakeShoppingListRepository()
-        useCase = GetShoppingListDetailsUseCase(fakeRepository)
-        viewModel = ShoppingListDetailsViewModel(useCase)
+        getDetailsUseCase = GetShoppingListDetailsUseCase(fakeRepository)
+        addItemUseCase = AddItemToListUseCase(fakeRepository)
+        viewModel = ShoppingListDetailsViewModel(getDetailsUseCase, addItemUseCase)
     }
 
     @AfterTest

@@ -9,6 +9,7 @@ import org.efradev.todolist.domain.model.DomainAuthData
 import org.efradev.todolist.domain.model.DomainUserRegistration
 import org.efradev.todolist.domain.model.DomainRegistrationResult
 import org.efradev.todolist.domain.model.DomainUser
+import org.efradev.todolist.domain.model.DomainAddItemRequest
 
 /**
  * Clases fake comunes para todos los tests de domain
@@ -40,11 +41,23 @@ class FakeShoppingListRepositoryForTests : ShoppingListRepository {
             items = emptyList()
         )
     )
+    var nextAddItemResult: Result<DomainShoppingList> = Result.success(
+        DomainShoppingList(
+            id = "1",
+            name = "Test List",
+            type = "simple",
+            createdAt = "2025-06-29T10:00:00",
+            userId = "user123",
+            items = emptyList()
+        )
+    )
     var shouldThrowException: Boolean = false
     
     data class CreateParams(val name: String, val type: String)
     var lastCreateParams: CreateParams? = null
     var lastRequestedListId: String? = null
+    var lastAddItemListId: String? = null
+    var lastAddItemRequest: DomainAddItemRequest? = null
 
     override suspend fun getShoppingLists(): Result<List<DomainShoppingList>> {
         if (shouldThrowException) throw RuntimeException("Test exception")
@@ -61,6 +74,13 @@ class FakeShoppingListRepositoryForTests : ShoppingListRepository {
         if (shouldThrowException) throw RuntimeException("Test exception")
         lastRequestedListId = listId
         return nextGetListDetailsResult
+    }
+
+    override suspend fun addItemToList(listId: String, item: DomainAddItemRequest): Result<DomainShoppingList> {
+        if (shouldThrowException) throw RuntimeException("Test exception")
+        lastAddItemListId = listId
+        lastAddItemRequest = item
+        return nextAddItemResult
     }
 }
 
@@ -193,5 +213,9 @@ class FakeShoppingListRepository : ShoppingListRepository {
         return getShoppingListDetailsResult ?: Result.failure(
             RuntimeException("No result set for getShoppingListDetails")
         )
+    }
+
+    override suspend fun addItemToList(listId: String, item: DomainAddItemRequest): Result<DomainShoppingList> {
+        return Result.success(DomainShoppingList("", "", "", "", "", emptyList()))
     }
 }

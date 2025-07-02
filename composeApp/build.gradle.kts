@@ -55,6 +55,7 @@ kotlin {
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation("com.russhwolf:multiplatform-settings:1.0.0")
+            implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.1")
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)

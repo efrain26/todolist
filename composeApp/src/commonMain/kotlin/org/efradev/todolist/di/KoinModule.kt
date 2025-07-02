@@ -35,6 +35,7 @@ import org.efradev.todolist.data.auth.AuthManager
 import org.efradev.todolist.domain.CreateShoppingListUseCase
 import org.efradev.todolist.viewmodel.CreateListViewModel
 import org.efradev.todolist.domain.GetShoppingListDetailsUseCase
+import org.efradev.todolist.domain.usecase.AddItemToListUseCase
 import org.efradev.todolist.viewmodel.ShoppingListDetailsViewModel
 import org.koin.core.qualifier.named
 
@@ -75,6 +76,7 @@ val appModule = module {
     single { GetShoppingListsUseCase(get(), get()) }
     single { CreateShoppingListUseCase(get()) }
     single { GetShoppingListDetailsUseCase(get()) }
+    single { AddItemToListUseCase(get()) }
     single { LogoutUseCase(get(), get()) }
 }
 
@@ -86,7 +88,7 @@ val viewModelModule = module {
     factoryOf(::AuthViewModel)
     factoryOf(::ProfileViewModel)
     factoryOf(::CreateListViewModel)
-    factoryOf(::ShoppingListDetailsViewModel)
+    factory { ShoppingListDetailsViewModel(get(), get()) }
 }
 
 fun initKoin() {

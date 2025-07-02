@@ -103,7 +103,7 @@ fun ItemsSectionHeaderPreview() {
     MaterialTheme {
         ItemsSectionHeader(
             itemCount = 3,
-            modifier = Modifier.padding(16.dp)
+            modifier = Modifier.padding(0.dp)
         )
     }
 }

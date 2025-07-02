@@ -2,6 +2,7 @@ package org.efradev.todolist.domain
 
 import org.efradev.todolist.domain.model.DomainShoppingList
 import org.efradev.todolist.domain.repository.ShoppingListRepository
+import org.efradev.todolist.utils.DateFormatter
 
 /**
  * Use case for getting shopping list details by ID
@@ -24,7 +25,14 @@ class GetShoppingListDetailsUseCase(
             if (listId.isBlank()) {
                 Result.failure(IllegalArgumentException("List ID cannot be empty"))
             } else {
-                shoppingListRepository.getShoppingListDetails(listId)
+                val result = shoppingListRepository.getShoppingListDetails(listId)
+
+                // Format the date in the use case layer
+                result.map { list ->
+                    list.copy(
+                        createdAt = DateFormatter.formatToUserFriendly(list.createdAt)
+                    )
+                }
             }
         } catch (e: Exception) {
             Result.failure(e)

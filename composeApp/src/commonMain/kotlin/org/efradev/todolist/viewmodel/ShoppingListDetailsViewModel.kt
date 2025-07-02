@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import org.efradev.todolist.domain.GetShoppingListDetailsUseCase
+import org.efradev.todolist.domain.usecase.AddItemToListUseCase
 import org.efradev.todolist.domain.model.DomainShoppingList
 
 /**
@@ -28,10 +29,14 @@ sealed class ShoppingListDetailsUiState {
  * Follows Clean Architecture principles by using domain use cases.
  */
 class ShoppingListDetailsViewModel(
-    private val getShoppingListDetailsUseCase: GetShoppingListDetailsUseCase
+    private val getShoppingListDetailsUseCase: GetShoppingListDetailsUseCase,
+    private val addItemToListUseCase: AddItemToListUseCase
 ) : ViewModel() {
 
     var uiState by mutableStateOf<ShoppingListDetailsUiState>(ShoppingListDetailsUiState.Loading)
+        private set
+    
+    var isAddingItem by mutableStateOf(false)
         private set
 
     /**
@@ -50,6 +55,37 @@ class ShoppingListDetailsViewModel(
                 .onFailure { error ->
                     uiState = ShoppingListDetailsUiState.Error(
                         error.message ?: "Failed to load list details"
+                    )
+                }
+        }
+    }
+
+    /**
+     * Add a new item to the shopping list
+     * 
+     * @param listId The ID of the list to add the item to
+     * @param itemName The name of the item to add
+     * @param listType The type of the list/item
+     */
+    fun addItem(listId: String, itemName: String, listType: String = "simple") {
+        viewModelScope.launch {
+            isAddingItem = true
+            
+            addItemToListUseCase(
+                listId = listId,
+                itemName = itemName,
+                listType = listType
+            )
+                .onSuccess { updatedList ->
+                    uiState = ShoppingListDetailsUiState.Success(updatedList)
+                    isAddingItem = false
+                }
+                .onFailure { error ->
+                    isAddingItem = false
+                    // Keep current state and show error message
+                    // Could be enhanced with a snackbar or toast notification
+                    uiState = ShoppingListDetailsUiState.Error(
+                        error.message ?: "Failed to add item"
                     )
                 }
         }

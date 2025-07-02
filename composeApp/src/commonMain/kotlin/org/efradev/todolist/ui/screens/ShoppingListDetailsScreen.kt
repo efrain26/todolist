@@ -16,7 +16,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,6 +24,7 @@ import org.efradev.todolist.domain.model.DomainShoppingList
 import org.efradev.todolist.domain.model.DomainShoppingItem
 import org.efradev.todolist.viewmodel.ShoppingListDetailsUiState
 import org.efradev.todolist.viewmodel.ShoppingListDetailsViewModel
+import org.efradev.todolist.ui.components.AddItemBottomSheet
 import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -36,6 +36,7 @@ fun ShoppingListDetailsScreen(
 ) {
     val viewModel: ShoppingListDetailsViewModel = koinViewModel<ShoppingListDetailsViewModel>()
     var showDropdownMenu by remember { mutableStateOf(false) }
+    var showAddItemBottomSheet by remember { mutableStateOf(false) }
     
     // Load list details when the screen is first composed
     LaunchedEffect(listId) {
@@ -97,7 +98,9 @@ fun ShoppingListDetailsScreen(
             )
         },
         bottomBar = {
-            BottomActionButtons()
+            BottomActionButtons(
+                onAddItemClick = { showAddItemBottomSheet = true }
+            )
         },
         modifier = modifier
     ) { paddingValues ->
@@ -129,6 +132,21 @@ fun ShoppingListDetailsScreen(
             }
         }
     }
+    
+    // Add Item Bottom Sheet
+    val currentListType = when (val state = viewModel.uiState) {
+        is ShoppingListDetailsUiState.Success -> state.list.type
+        else -> "simple"
+    }
+    
+    AddItemBottomSheet(
+        isVisible = showAddItemBottomSheet,
+        onDismiss = { showAddItemBottomSheet = false },
+        onAddItem = { itemName, listType ->
+            viewModel.addItem(listId, itemName, listType)
+        },
+        listType = currentListType
+    )
 }
 
 @Composable
@@ -182,14 +200,9 @@ internal fun ListDetailsContent(
         // Fixed header sections
         HeaderSection(
             list = list,
-            modifier = Modifier.padding(16.dp)
-        )
-        
-        DescriptionSection(
-            list = list,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
-        
+
         ItemsSectionHeader(
             itemCount = list.items.size,
             modifier = Modifier.padding(16.dp)
@@ -198,7 +211,7 @@ internal fun ListDetailsContent(
         // Scrollable items list
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+            contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             // List items
@@ -227,18 +240,8 @@ internal fun HeaderSection(
 ) {
     Row(
         modifier = modifier,
-        horizontalArrangement = Arrangement.spacedBy(24.dp)
+        horizontalArrangement = Arrangement.spacedBy(0.dp)
     ) {
-        // Image placeholder (matches Figma design)
-        Surface(
-            modifier = Modifier
-                .size(136.dp)
-                .clip(RoundedCornerShape(28.dp)),
-            color = MaterialTheme.colorScheme.surfaceVariant
-        ) {
-            // TODO: Add actual image when available
-        }
-
         // Text content
         Column(
             modifier = Modifier.weight(1f),
@@ -254,18 +257,10 @@ internal fun HeaderSection(
                     fontWeight = FontWeight.Normal
                 )
                 Text(
-                    text = "Created: ${list.createdAt}",
+                    text = "${list.createdAt}",
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
-            }
-
-            // Download/Action button (matches Figma design)
-            Button(
-                onClick = { /* TODO: Download functionality */ },
-                modifier = Modifier.height(40.dp)
-            ) {
-                Text("Download")
             }
         }
     }
@@ -278,7 +273,8 @@ internal fun DescriptionSection(
 ) {
     Column(
         modifier = modifier,
-        verticalArrangement = Arrangement.spacedBy(8.dp)
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+
     ) {
         Text(
             text = "PUBLISHED DATE",
@@ -310,14 +306,6 @@ internal fun ItemsSectionHeader(
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Normal
         )
-        IconButton(
-            onClick = { /* TODO: Navigate to all items */ }
-        ) {
-            Icon(
-                imageVector = Icons.Default.PlayArrow,
-                contentDescription = "View all items"
-            )
-        }
     }
 }
 
@@ -336,18 +324,9 @@ internal fun ListItemCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(16.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
-            // Item image placeholder
-            Surface(
-                modifier = Modifier
-                    .size(120.dp)
-                    .clip(RoundedCornerShape(16.dp)),
-                color = MaterialTheme.colorScheme.surfaceVariant
-            ) {
-                // TODO: Add actual item image
-            }
 
             // Item content
             Column(
@@ -370,47 +349,6 @@ internal fun ListItemCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
                         overflow = TextOverflow.Ellipsis
-                    )
-                }
-
-                // Bottom row with info and action
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    // Item info
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.AddCircle,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp)
-                        )
-                        Text(
-                            text = "Today",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "•",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                        Text(
-                            text = "Type: ${item.type}",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
-                    }
-
-                    // Action icon
-                    Icon(
-                        imageVector = Icons.Default.PlayArrow,
-                        contentDescription = "Item action",
-                        modifier = Modifier.size(20.dp)
                     )
                 }
             }
@@ -447,6 +385,7 @@ internal fun EmptyItemsState(
  */
 @Composable
 internal fun BottomActionButtons(
+    onAddItemClick: () -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     Surface(
@@ -477,7 +416,7 @@ internal fun BottomActionButtons(
             
             // Secondary action button (Add Item)
             OutlinedButton(
-                onClick = { /* TODO: Add item functionality */ },
+                onClick = onAddItemClick,
                 modifier = Modifier.weight(1f),
                 shape = RoundedCornerShape(28.dp)
             ) {
